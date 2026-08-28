@@ -138,6 +138,28 @@
         .btn-print:hover { background-color: #a04000; }
         .delete-btn { background-color: #c0392b; padding: 6px 10px; font-size: 12px; width: 100%; }
 
+        /* شريط التصفية الجديد */
+        .filter-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .filter-btn {
+            padding: 8px 12px;
+            font-size: 12px;
+            border-radius: 6px;
+            background: #e2e8f0;
+            color: #333;
+            border: 1px solid #cbd5e1;
+            cursor: pointer;
+            flex: 1;
+        }
+        .filter-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
         /* نافذة الإدخال الجماعي */
         .modal-overlay {
             display: none;
@@ -163,12 +185,12 @@
         .modal-buttons { display: flex; gap: 10px; }
         .btn-secondary { background-color: #7f8c8d; }
 
-        /* تصميم بطاقات عرض المعلمات للجوال */
+        /* بطاقات عرض المعلمات */
         .cards-container {
             display: flex;
             flex-direction: column;
             gap: 12px;
-            margin-top: 10px;
+            margin-top: 5px;
         }
 
         .teacher-card {
@@ -201,11 +223,7 @@
             padding-bottom: 8px;
         }
 
-        .card-name {
-            font-size: 16px;
-            font-weight: bold;
-            color: var(--primary-color);
-        }
+        .card-name { font-size: 16px; font-weight: bold; color: var(--primary-color); }
 
         .card-body {
             display: grid;
@@ -214,25 +232,10 @@
             font-size: 13px;
         }
 
-        .card-item {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .card-item span.label {
-            color: #7f8c8d;
-            font-size: 11px;
-        }
-
-        .card-item span.val {
-            font-weight: bold;
-        }
-
-        .card-actions {
-            display: flex;
-            gap: 8px;
-            margin-top: 5px;
-        }
+        .card-item { display: flex; flex-direction: column; }
+        .card-item span.label { color: #7f8c8d; font-size: 11px; }
+        .card-item span.val { font-weight: bold; }
+        .card-actions { display: flex; gap: 8px; margin-top: 5px; }
 
         .badge {
             padding: 3px 8px;
@@ -245,7 +248,6 @@
         .badge-warning { background-color: #f39c12; }
         .badge-normal { background-color: #2ecc71; }
 
-        /* طباعة الإشعار الرسمي */
         #printArea { display: none; }
         @media print {
             body * { visibility: hidden; }
@@ -269,7 +271,7 @@
     <div class="school-subtitle" id="displaySchoolName">مدرسة فاطمة بنت اليمان</div>
     <div class="credits-subtitle">إعداد: منى عامر الرحيلي</div>
 
-    <!-- شريط الثيمات -->
+    <!-- الثيمات -->
     <div class="theme-selector">
         <span style="font-weight: bold; font-size: 12px;">الثيم:</span>
         <div class="theme-dot theme-classic" onclick="setTheme('default')" title="كلاسيكي"></div>
@@ -294,11 +296,10 @@
         </div>
     </div>
 
-    <!-- نموذج الإدخال متوافق مع قائمة الصناديق للجوال -->
+    <!-- الإدخال -->
     <div class="form-panel">
         <div class="input-group">
             <label for="teacherNameInput">اسم المعلمة:</label>
-            <!-- استخدام input مدعوم بـ datalist للاختيار المباشر أو الكتابة -->
             <input type="text" id="teacherNameInput" list="teachersList" placeholder="اختر من القائمة أو اكتب اسماً جديداً" required>
             <datalist id="teachersList"></datalist>
         </div>
@@ -322,7 +323,7 @@
         <button class="btn-bulk" onclick="openBulkModal()">👥 إضافة معلمات دفعة واحدة</button>
     </div>
 
-    <!-- الإجراءات والملفات -->
+    <!-- العمليات -->
     <div class="action-bar">
         <button class="btn-export" onclick="exportData()">💾 تصدير نسخة احتياطية</button>
         <button class="btn-import" onclick="document.getElementById('importFile').click()">📂 استرداد بيانات من ملف</button>
@@ -330,11 +331,18 @@
         <button class="btn-clear" onclick="clearAllData()">🗑️ مسح الكل</button>
     </div>
 
-    <!-- عرض السجلات في شكل بطاقات مرتبة للجوال -->
+    <!-- شريط التصفية الجديد لتحديد المتأخرات فوراً -->
+    <div class="filter-bar">
+        <button class="filter-btn active" onclick="setFilter('all', this)">الكل 👥</button>
+        <button class="filter-btn" onclick="setFilter('delayedToday', this)">المتأخرات اليوم ⏱️</button>
+        <button class="filter-btn" onclick="setFilter('limitExceeded', this)">تجاوزن الحسم ⚠️</button>
+    </div>
+
+    <!-- عرض البطاقات -->
     <div class="cards-container" id="attendanceCards"></div>
 </div>
 
-<!-- نافذة الإدخال الجماعي -->
+<!-- النافذة المنبثقة للإدخال الجماعي -->
 <div class="modal-overlay" id="bulkModal">
     <div class="modal-content">
         <h3 style="margin: 0; color: var(--primary-color); font-size: 16px;">👥 إضافة أسماء المعلمات دفعة واحدة</h3>
@@ -347,7 +355,7 @@
     </div>
 </div>
 
-<!-- الطباعة والإشعار -->
+<!-- ورقة الطباعة -->
 <div id="printArea">
     <div class="notice-card">
         <div class="notice-header">
@@ -414,6 +422,7 @@
 
 <script>
     let teachersData = {};
+    let currentFilter = 'all';
 
     window.onload = function() {
         loadTheme();
@@ -476,6 +485,13 @@
             option.value = name;
             datalist.appendChild(option);
         }
+    }
+
+    function setFilter(filterType, btnElement) {
+        currentFilter = filterType;
+        document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+        btnElement.classList.add('active');
+        renderAllCards();
     }
 
     function addRecord() {
@@ -557,7 +573,6 @@
         if (saved) { teachersData = JSON.parse(saved); }
     }
 
-    /* عرض البيانات في شكل بطاقات جذابة تناسب الجوال */
     function renderAllCards() {
         const container = document.getElementById('attendanceCards');
         container.innerHTML = '';
@@ -566,8 +581,17 @@
         const limitMinutes = deductionHours * 60;
         const warningMinutes = limitMinutes * 0.75;
 
+        let visibleCount = 0;
+
         for (let name in teachersData) {
             const data = teachersData[name];
+
+            // تطبيق التصفية حسب الفلتر المختار
+            if (currentFilter === 'delayedToday' && data.lastTodayDelay === 0) continue;
+            if (currentFilter === 'limitExceeded' && data.totalDelay < limitMinutes) continue;
+
+            visibleCount++;
+
             let cardClass = 'teacher-card';
             let statusBadge = '';
 
@@ -608,6 +632,10 @@
                 </div>
             `;
             container.appendChild(card);
+        }
+
+        if (visibleCount === 0) {
+            container.innerHTML = '<div style="text-align:center; color:#7f8c8d; padding:20px;">لا توجد سجلات تطابق الفلتر المختار.</div>';
         }
     }
 
