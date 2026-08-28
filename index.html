@@ -7,21 +7,69 @@
     <style>
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: #f4f7f6; margin: 20px; color: #333; }
-        .container { max-width: 1050px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
+        .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
         h2 { text-align: center; color: #2c3e50; margin-bottom: 25px; }
-        .settings-panel { background: #eef2f5; padding: 15px 20px; border-radius: 8px; display: flex; flex-wrap: wrap; gap: 20px; align-items: center; justify-content: space-between; margin-bottom: 25px; }
-        .input-group { display: flex; align-items: center; gap: 10px; }
-        label { font-weight: bold; color: #34495e; }
-        input, button { padding: 8px 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
-        button { background-color: #27ae60; color: white; border: none; cursor: pointer; transition: background 0.2s; }
+        
+        /* التنسيقات العامة للصناديق المرتبة رأسياً */
+        .settings-panel, .form-panel, .action-bar {
+            display: flex;
+            flex-direction: column; /* ترتيب العناصر فوق بعضها */
+            gap: 15px; /* مسافة منتظمة بين الصناديق */
+            background: #fafafa;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 20px;
+        }
+
+        .settings-panel { background: #eef2f5; }
+
+        .input-group { 
+            display: flex; 
+            flex-direction: column; /* وضع العنوان فوق مربع الإدخال */
+            gap: 6px; 
+            width: 100%;
+        }
+
+        label { font-weight: bold; color: #34495e; font-size: 14px; }
+        
+        input, select, button { 
+            padding: 10px 14px; 
+            border: 1px solid #ccc; 
+            border-radius: 6px; 
+            font-size: 14px; 
+            width: 100%; /* جعل كافة الصناديق والأزرار بعرض كامل متناسق */
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+        }
+
+        button { 
+            background-color: #27ae60; 
+            color: white; 
+            border: none; 
+            cursor: pointer; 
+            font-weight: bold;
+            transition: background 0.2s, transform 0.1s; 
+        }
+
         button:hover { background-color: #219150; }
+        button:active { transform: scale(0.99); }
+
         .btn-export { background-color: #2980b9; }
+        .btn-export:hover { background-color: #2471a3; }
         .btn-import { background-color: #8e44ad; }
+        .btn-import:hover { background-color: #7d3c98; }
         .btn-clear { background-color: #e74c3c; }
-        .btn-print { background-color: #d35400; padding: 5px 10px; font-size: 12px; }
+        .btn-clear:hover { background-color: #c0392b; }
+        .btn-print { background-color: #d35400; padding: 6px 12px; font-size: 13px; width: auto; }
         .btn-print:hover { background-color: #a04000; }
-        .form-panel { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; background: #fafafa; padding: 15px; border-radius: 8px; border: 1px solid #eee; }
-        .action-bar { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        .delete-btn { background-color: #c0392b; padding: 6px 12px; font-size: 13px; width: auto; }
+
+        /* الجدول الرئيسي */
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th, td { border: 1px solid #e0e0e0; padding: 12px; text-align: center; }
         th { background-color: #34495e; color: white; }
@@ -31,7 +79,6 @@
         .badge-alert { background-color: #e74c3c; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; }
         .badge-warning { background-color: #f39c12; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; }
         .badge-normal { background-color: #2ecc71; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; }
-        .delete-btn { background-color: #c0392b; padding: 5px 10px; font-size: 12px; }
 
         /* الطباعة والإشعار الرسمي */
         #printArea { display: none; }
@@ -56,30 +103,36 @@
 <div class="container no-print">
     <h2>نظام متابعة تأخر المعلمات (مع طباعة إشعار التنبيه)</h2>
 
-    <!-- الإعدادات -->
+    <!-- الإعدادات مرتبة رأسياً -->
     <div class="settings-panel">
+        <div class="input-group">
+            <label for="schoolName">اسم المدرسة:</label>
+            <input type="text" id="schoolName" value="المدرسة الابتدائي/الثانوي" onchange="saveSettings()">
+        </div>
         <div class="input-group">
             <label for="officialTime">وقت الحضور الرسمي:</label>
             <input type="time" id="officialTime" value="07:00" onchange="saveSettings()">
         </div>
         <div class="input-group">
             <label for="deductionLimit">حد الحسم (بالساعات):</label>
-            <input type="number" id="deductionLimit" value="7" min="1" style="width: 70px;" onchange="saveSettings()">
-        </div>
-        <div class="input-group">
-            <label for="schoolName">اسم المدرسة:</label>
-            <input type="text" id="schoolName" value="المدرسة الابتدائي/الثانوي" onchange="saveSettings()">
+            <input type="number" id="deductionLimit" value="7" min="1" onchange="saveSettings()">
         </div>
     </div>
 
-    <!-- إضافة سجل -->
+    <!-- إضافة سجل مرتبة رأسياً -->
     <div class="form-panel">
-        <input type="text" id="teacherName" placeholder="اسم المعلمة" required>
-        <input type="time" id="arrivalTime" required>
+        <div class="input-group">
+            <label for="teacherName">اسم المعلمة:</label>
+            <input type="text" id="teacherName" placeholder="أدخل اسم المعلمة" required>
+        </div>
+        <div class="input-group">
+            <label for="arrivalTime">وقت الحضور:</label>
+            <input type="time" id="arrivalTime" required>
+        </div>
         <button onclick="addRecord()">تسجيل الحضور</button>
     </div>
 
-    <!-- أدوات التصدير والاسترداد -->
+    <!-- أدوات التصدير والاسترداد مرتبة رأسياً -->
     <div class="action-bar">
         <button class="btn-export" onclick="exportData()">💾 تصدير نسخة احتياطية</button>
         <button class="btn-import" onclick="document.getElementById('importFile').click()">📂 استرداد بيانات من ملف</button>
@@ -231,7 +284,7 @@
 
         const deductionHours = parseFloat(document.getElementById('deductionLimit').value) || 7;
         const limitMinutes = deductionHours * 60;
-        const warningMinutes = limitMinutes * 0.75; // التنبيه عند 75% من الحد
+        const warningMinutes = limitMinutes * 0.75;
 
         for (let name in teachersData) {
             const data = teachersData[name];
@@ -334,3 +387,4 @@
 
 </body>
 </html>
+
