@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام متابعة التأخير للمعلمات - مدرسة فاطمة بنت اليمان</title>
+    <title>نظام متابعة تأخر المعلمات - مدرسة فاطمة بنت اليمان</title>
     <style>
         :root {
             --primary-color: #2c3e50;
@@ -90,34 +90,36 @@
         .settings-panel { background: var(--panel-bg); }
         .input-group { display: flex; flex-direction: column; gap: 6px; width: 100%; }
         
-        /* أدوات أسهم حد الحسم */
+        /* تصميم أسهم زيادة ونقص الساعات والدقائق */
         .stepper-wrapper {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
         .btn-stepper {
             background-color: var(--primary-color);
             color: white;
             border: none;
-            width: 42px;
-            height: 42px;
-            font-size: 20px;
+            width: 40px;
+            height: 40px;
+            font-size: 18px;
             border-radius: 6px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
+            flex-shrink: 0;
         }
+        .btn-stepper:active { transform: scale(0.95); }
         .stepper-val {
             flex: 1;
             text-align: center;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: bold;
             background: white;
         }
 
-        .time-input-wrapper { display: flex; gap: 8px; }
+        .time-input-wrapper { display: flex; gap: 6px; width: 100%; }
         label { font-weight: bold; color: var(--primary-color); font-size: 13px; }
         
         input, select, button, textarea { 
@@ -150,7 +152,7 @@
         button:hover { background-color: var(--accent-hover); }
         button:active { transform: scale(0.99); }
 
-        .btn-now { background-color: #3498db; width: auto; white-space: nowrap; padding: 0 15px; }
+        .btn-now { background-color: #3498db; width: auto; white-space: nowrap; padding: 0 12px; font-size: 13px; flex-shrink: 0; }
         .btn-now:hover { background-color: #2980b9; }
 
         .btn-bulk { background-color: #16a085; }
@@ -239,7 +241,7 @@
         .badge-warning { background-color: #f39c12; }
         .badge-normal { background-color: #2ecc71; }
 
-        /* إعدادات الطباعة الدقيقة لصفحة واحدة محددة الأبعاد */
+        /* الطباعة الإطار الموحد صفحة واحدة */
         #printArea { display: none; }
         @media print {
             @page { size: A4 portrait; margin: 10mm; }
@@ -291,7 +293,7 @@
         <div class="theme-dot theme-burgundy" onclick="setTheme('burgundy')" title="عنابي"></div>
     </div>
 
-    <!-- الإعدادات مع أسهم الصعود والنزول -->
+    <!-- الإعدادات -->
     <div class="settings-panel">
         <div class="input-group">
             <label for="schoolName">اسم المدرسة:</label>
@@ -311,7 +313,7 @@
         </div>
     </div>
 
-    <!-- النموذج -->
+    <!-- النموذج مضاف إليه أسهم التحكم بالدقائق في اليمين -->
     <div class="form-panel">
         <div class="input-group">
             <label for="teacherSelect">اختر اسم المعلمة:</label>
@@ -322,6 +324,9 @@
         <div class="input-group">
             <label for="arrivalTime">وقت الحضور:</label>
             <div class="time-input-wrapper">
+                <!-- أسهم التحكم في زيادة وتنقيص الدقائق على اليمين -->
+                <button type="button" class="btn-stepper" onclick="adjustMinutes(1)" title="زيادة دقيقة">➕</button>
+                <button type="button" class="btn-stepper" onclick="adjustMinutes(-1)" title="نقص دقيقة">➖</button>
                 <input type="time" id="arrivalTime" list="popularTimes" required>
                 <button type="button" class="btn-now" onclick="setCurrentTime()">الآن 🕒</button>
             </div>
@@ -348,18 +353,17 @@
         <button class="btn-clear" onclick="clearAllData()">🗑️ مسح الكل</button>
     </div>
 
-    <!-- التصفية والفرز -->
+    <!-- التصفية -->
     <div class="filter-bar">
         <button class="filter-btn active" onclick="setFilter('all', this)">الكل 👥</button>
         <button class="filter-btn" onclick="setFilter('delayedToday', this)">المتأخرات اليوم ⏱️</button>
         <button class="filter-btn" onclick="setFilter('limitExceeded', this)">تجاوزن الحسم ⚠️</button>
     </div>
 
-    <!-- البطاقات مرتبة تنازلياً حسب التأخير -->
     <div class="cards-container" id="attendanceCards"></div>
 </div>
 
-<!-- النافذة المنبثقة الإدخال الجماعي -->
+<!-- النافذة المنبثقة -->
 <div class="modal-overlay" id="bulkModal">
     <div class="modal-content">
         <h3 style="margin: 0; color: var(--primary-color); font-size: 16px;">👥 إضافة أسماء المعلمات دفعة واحدة</h3>
@@ -372,7 +376,7 @@
     </div>
 </div>
 
-<!-- الإشعار المخصص للطباعة بصفحة واحدة محددة الإطار -->
+<!-- الطباعة -->
 <div id="printArea">
     <div class="notice-card">
         <div class="notice-header">
@@ -470,6 +474,23 @@
         if (currentVal < 1) currentVal = 1;
         input.value = currentVal;
         saveSettings();
+    }
+
+    /* دالة زيارة أو نقص الدقائق في حقل وقت الحضور */
+    function adjustMinutes(deltaMinutes) {
+        const timeInput = document.getElementById('arrivalTime');
+        let val = timeInput.value;
+        if (!val) {
+            val = document.getElementById('officialTime').value || "07:00";
+        }
+        
+        let [hours, minutes] = val.split(':').map(Number);
+        let date = new Date();
+        date.setHours(hours, minutes + deltaMinutes, 0);
+
+        const newHours = String(date.getHours()).padStart(2, '0');
+        const newMinutes = String(date.getMinutes()).padStart(2, '0');
+        timeInput.value = `${newHours}:${newMinutes}`;
     }
 
     function setCurrentTime() {
@@ -604,7 +625,6 @@
         if (saved) { teachersData = JSON.parse(saved); }
     }
 
-    /* عرض البطاقات مرتبة من الأكثر تأخيراً إلى الأقل */
     function renderAllCards() {
         const container = document.getElementById('attendanceCards');
         container.innerHTML = '';
@@ -613,7 +633,6 @@
         const limitMinutes = deductionHours * 60;
         const warningMinutes = limitMinutes * 0.75;
 
-        // تحويل البيانات إلى مصفوفة وترتيبها تنازلياً حسب إجمالي التأخير (totalDelay)
         let teachersArray = Object.keys(teachersData).map(name => {
             return { name: name, ...teachersData[name] };
         });
