@@ -13,8 +13,8 @@
         /* التنسيقات العامة للصناديق المرتبة رأسياً */
         .settings-panel, .form-panel, .action-bar {
             display: flex;
-            flex-direction: column; /* ترتيب العناصر فوق بعضها */
-            gap: 15px; /* مسافة منتظمة بين الصناديق */
+            flex-direction: column;
+            gap: 15px;
             background: #fafafa;
             padding: 20px;
             border-radius: 8px;
@@ -26,22 +26,22 @@
 
         .input-group { 
             display: flex; 
-            flex-direction: column; /* وضع العنوان فوق مربع الإدخال */
+            flex-direction: column; 
             gap: 6px; 
             width: 100%;
         }
 
         label { font-weight: bold; color: #34495e; font-size: 14px; }
         
-        input, select, button { 
+        input, select, button, textarea { 
             padding: 10px 14px; 
             border: 1px solid #ccc; 
             border-radius: 6px; 
             font-size: 14px; 
-            width: 100%; /* جعل كافة الصناديق والأزرار بعرض كامل متناسق */
+            width: 100%;
         }
 
-        input:focus {
+        input:focus, textarea:focus {
             outline: none;
             border-color: #3498db;
             box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
@@ -54,11 +54,17 @@
             cursor: pointer; 
             font-weight: bold;
             transition: background 0.2s, transform 0.1s; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
         button:hover { background-color: #219150; }
         button:active { transform: scale(0.99); }
 
+        .btn-bulk { background-color: #16a085; }
+        .btn-bulk:hover { background-color: #117a65; }
         .btn-export { background-color: #2980b9; }
         .btn-export:hover { background-color: #2471a3; }
         .btn-import { background-color: #8e44ad; }
@@ -68,6 +74,37 @@
         .btn-print { background-color: #d35400; padding: 6px 12px; font-size: 13px; width: auto; }
         .btn-print:hover { background-color: #a04000; }
         .delete-btn { background-color: #c0392b; padding: 6px 12px; font-size: 13px; width: auto; }
+
+        /* نافذة الإدخال الجماعي المنبثقة */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-secondary { background-color: #7f8c8d; }
+        .btn-secondary:hover { background-color: #626567; }
 
         /* الجدول الرئيسي */
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
@@ -119,7 +156,7 @@
         </div>
     </div>
 
-    <!-- إضافة سجل مرتبة رأسياً -->
+    <!-- إضافة سجل الفردي والجماعي -->
     <div class="form-panel">
         <div class="input-group">
             <label for="teacherName">اسم المعلمة:</label>
@@ -129,7 +166,9 @@
             <label for="arrivalTime">وقت الحضور:</label>
             <input type="time" id="arrivalTime" required>
         </div>
-        <button onclick="addRecord()">تسجيل الحضور</button>
+        <button onclick="addRecord()">⏱️ تسجيل الحضور</button>
+        <!-- زر الإدخال الجماعي مع الأيقونة -->
+        <button class="btn-bulk" onclick="openBulkModal()">👥 إضافة معلمات دفعة واحدة</button>
     </div>
 
     <!-- أدوات التصدير والاسترداد مرتبة رأسياً -->
@@ -154,6 +193,19 @@
         </thead>
         <tbody id="attendanceTable"></tbody>
     </table>
+</div>
+
+<!-- النافذة المنبثقة للإدخال الجماعي -->
+<div class="modal-overlay" id="bulkModal">
+    <div class="modal-content">
+        <h3 style="margin: 0; color: #2c3e50;">👥 إضافة أسماء المعلمات دفعة واحدة</h3>
+        <p style="font-size: 13px; color: #666; margin: 0;">قم بكتابة أو لصق أسماء المعلمات، مع وضع كل اسم في سطر جديد:</p>
+        <textarea id="bulkNames" rows="8" placeholder="نورة أحمد&#10;سارة محمد&#10;ريم علي"></textarea>
+        <div class="modal-buttons">
+            <button onclick="addBulkTeachers()">حفظ القائمة</button>
+            <button class="btn-secondary" onclick="closeBulkModal()">إلغاء</button>
+        </div>
+    </div>
 </div>
 
 <!-- ورقة الإشعار المخصصة للطباعة -->
@@ -190,7 +242,7 @@
                 </tbody>
             </table>
 
-            <p id="noticeText">نأمل منكم الالتزام بالحضور في الوقت المخصص حرصاً على سير العملية التعليمية وتفادياً لتطبيق إجراءات الحسم النظامية.</p>
+            <p id="noticeText">نأمل منكم الالتزام بالحضور في الوقت المخصص حرصاً على سير العملية التعليمية وتفادياً للوصول للحد الذي يستوجب تطبيق الحسم النظامي.</p>
         </div>
 
         <div class="notice-footer">
@@ -262,7 +314,41 @@
         document.getElementById('arrivalTime').value = '';
     }
 
+    /* دالّات الإدخال الجماعي */
+    function openBulkModal() {
+        document.getElementById('bulkModal').style.display = 'flex';
+    }
+
+    function closeBulkModal() {
+        document.getElementById('bulkModal').style.display = 'none';
+        document.getElementById('bulkNames').value = '';
+    }
+
+    function addBulkTeachers() {
+        const rawText = document.getElementById('bulkNames').value;
+        const names = rawText.split('\n').map(name => name.trim()).filter(name => name.length > 0);
+
+        if (names.length === 0) {
+            alert('يرجى إدخال اسم واحد على الأقل.');
+            return;
+        }
+
+        let addedCount = 0;
+        names.forEach(name => {
+            if (!teachersData[name]) {
+                teachersData[name] = { totalDelay: 0, lastArrival: '-', lastTodayDelay: 0 };
+                addedCount++;
+            }
+        });
+
+        saveDataToStorage();
+        renderAllRows();
+        closeBulkModal();
+        alert(`تمت إضافة ${addedCount} معلمة بنجاح!`);
+    }
+
     function calculateMinutesDelay(official, arrival) {
+        if (arrival === '-') return 0;
         const [offHours, offMins] = official.split(':').map(Number);
         const [arrHours, arrMins] = arrival.split(':').map(Number);
         const diff = (arrHours * 60 + arrMins) - (offHours * 60 + offMins);
