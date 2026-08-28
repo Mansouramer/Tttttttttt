@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام متابعة تأخر المعلمات - مع طباعة الإشعارات</title>
+    <title>نظام متابعة تأخر المعلمات - مدرسة فاطمة بنت اليمان</title>
     <style>
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: #f4f7f6; margin: 20px; color: #333; }
-        .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
-        h2 { text-align: center; color: #2c3e50; margin-bottom: 25px; }
+        .container { max-width: 850px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
+        h2 { text-align: center; color: #2c3e50; margin-bottom: 5px; }
+        .credits { text-align: center; color: #7f8c8d; font-size: 14px; font-weight: bold; margin-bottom: 20px; }
         
         /* التنسيقات العامة للصناديق المرتبة رأسياً */
         .settings-panel, .form-panel, .action-bar {
@@ -68,7 +69,7 @@
         button:hover { background-color: #219150; }
         button:active { transform: scale(0.99); }
 
-        .btn-now { background-color: #3498db; width: auto; whitespace: nowrap; padding: 0 15px; }
+        .btn-now { background-color: #3498db; width: auto; white-space: nowrap; padding: 0 15px; }
         .btn-now:hover { background-color: #2980b9; }
 
         .btn-bulk { background-color: #16a085; }
@@ -133,26 +134,28 @@
             #printArea { display: block !important; position: absolute; left: 0; top: 0; width: 100%; padding: 30px; background: white; color: black; }
             .no-print { display: none !important; }
         }
-        .notice-card { border: 2px solid #2c3e50; padding: 30px; border-radius: 10px; line-height: 1.8; font-size: 16px; }
-        .notice-header { text-align: center; border-bottom: 2px solid #2c3e50; padding-bottom: 15px; margin-bottom: 25px; }
-        .notice-title { font-size: 22px; font-weight: bold; color: #2c3e50; }
-        .notice-body { margin-bottom: 30px; }
-        .notice-table { width: 100%; margin: 20px 0; border-collapse: collapse; }
-        .notice-table th, .notice-table td { border: 1px solid #333; padding: 10px; text-align: center; }
-        .notice-footer { margin-top: 50px; display: flex; justify-content: space-between; padding: 0 40px; }
+        .notice-card { border: 2px solid #2c3e50; padding: 30px; border-radius: 10px; line-height: 1.8; font-size: 15px; }
+        .notice-header { text-align: center; border-bottom: 2px solid #2c3e50; padding-bottom: 15px; margin-bottom: 20px; }
+        .notice-title { font-size: 20px; font-weight: bold; color: #2c3e50; }
+        .notice-body { margin-bottom: 20px; }
+        .notice-table { width: 100%; margin: 15px 0; border-collapse: collapse; }
+        .notice-table th, .notice-table td { border: 1px solid #333; padding: 8px; text-align: center; }
+        .notice-footer { margin-top: 40px; display: flex; justify-content: space-between; padding: 0 30px; }
         .signature-box { text-align: center; font-weight: bold; }
+        .footer-credits { margin-top: 30px; text-align: center; font-size: 12px; border-top: 1px solid #ccc; padding-top: 10px; color: #555; }
     </style>
 </head>
 <body>
 
 <div class="container no-print">
-    <h2>نظام متابعة تأخر المعلمات (مع طباعة إشعار التنبيه)</h2>
+    <h2>نظام متابعة تأخر المعلمات</h2>
+    <div class="credits">مدرسة فاطمة بنت اليمان | إعداد: منى عامر الرحيلي</div>
 
     <!-- الإعدادات مرتبة رأسياً -->
     <div class="settings-panel">
         <div class="input-group">
             <label for="schoolName">اسم المدرسة:</label>
-            <input type="text" id="schoolName" value="المدرسة الابتدائي/الثانوي" onchange="saveSettings()">
+            <input type="text" id="schoolName" value="مدرسة فاطمة بنت اليمان" onchange="saveSettings()">
         </div>
         <div class="input-group">
             <label for="officialTime">وقت الحضور الرسمي:</label>
@@ -173,14 +176,11 @@
         <div class="input-group">
             <label for="arrivalTime">وقت الحضور:</label>
             <div class="time-input-wrapper">
-                <!-- حقل الوقت مزود بقائمة مقترحات لساعات الحضور الشائعة -->
                 <input type="time" id="arrivalTime" list="popularTimes" required>
-                <!-- زر إدخال الوقت الحالي بضغطة زر -->
                 <button type="button" class="btn-now" onclick="setCurrentTime()">الآن 🕒</button>
             </div>
         </div>
 
-        <!-- قائمة الأوقات المقترحة للتسجيل السريع -->
         <datalist id="popularTimes">
             <option value="07:05">
             <option value="07:15">
@@ -234,7 +234,7 @@
 <div id="printArea">
     <div class="notice-card">
         <div class="notice-header">
-            <div style="font-size: 14px; font-weight: bold; float: right;" id="printSchool">المدرسة</div>
+            <div style="font-size: 14px; font-weight: bold; float: right;" id="printSchool">مدرسة فاطمة بنت اليمان</div>
             <div style="font-size: 14px; font-weight: bold; float: left;" id="printDate">التاريخ: </div>
             <div style="clear: both;"></div>
             <div class="notice-title" style="margin-top: 10px;">إشعار وتنبيه بمجموع تأخر المعلمة</div>
@@ -264,7 +264,22 @@
                 </tbody>
             </table>
 
-            <p id="noticeText">نأمل منكم الالتزام بالحضور في الوقت المخصص حرصاً على سير العملية التعليمية وتفادياً للوصول للحد الذي يستوجب تطبيق الحسم النظامي.</p>
+            <!-- سجل الأيام التفصيلي المضاف للطباعة -->
+            <p style="margin-top: 20px; font-weight: bold;">تفاصيل أيام وأوقات التأخير المسجلة:</p>
+            <table class="notice-table">
+                <thead>
+                    <tr>
+                        <th>التاريخ</th>
+                        <th>وقت الحضور</th>
+                        <th>دقائق التأخير</th>
+                    </tr>
+                </thead>
+                <tbody id="printHistoryTable">
+                    <!-- تتعبأ تلقائياً -->
+                </tbody>
+            </table>
+
+            <p id="noticeText" style="margin-top: 15px;">نأمل منكم الالتزام بالحضور في الوقت المخصص حرصاً على سير العملية التعليمية وتفادياً للوصول للحد الذي يستوجب تطبيق الحسم النظامي.</p>
         </div>
 
         <div class="notice-footer">
@@ -276,6 +291,10 @@
                 <p>توقيع وختم مديرة المدرسة:</p>
                 <p>.......................................</p>
             </div>
+        </div>
+
+        <div class="footer-credits">
+            إعداد وتصميم النظام: منى عامر الرحيلي - مدرسة فاطمة بنت اليمان
         </div>
     </div>
 </div>
@@ -289,7 +308,6 @@
         renderAllRows();
     };
 
-    /* دالة تعبئة وقت الحضور الحالي تلقائياً بنقرة زر */
     function setCurrentTime() {
         const now = new Date();
         const hours = String(now.getHours()).padStart(2, '0');
@@ -313,7 +331,7 @@
             const settings = JSON.parse(saved);
             document.getElementById('officialTime').value = settings.officialTime || '07:00';
             document.getElementById('deductionLimit').value = settings.deductionLimit || 7;
-            document.getElementById('schoolName').value = settings.schoolName || 'المدرسة الابتدائية/الثانوية';
+            document.getElementById('schoolName').value = settings.schoolName || 'مدرسة فاطمة بنت اليمان';
         }
     }
 
@@ -328,14 +346,26 @@
         }
 
         const todayDelay = calculateMinutesDelay(officialTimeStr, arrivalTimeStr);
+        const currentDate = new Date().toLocaleDateString('ar-SA');
 
         if (!teachersData[name]) {
-            teachersData[name] = { totalDelay: 0, lastArrival: arrivalTimeStr, lastTodayDelay: 0 };
+            teachersData[name] = { totalDelay: 0, lastArrival: arrivalTimeStr, lastTodayDelay: 0, history: [] };
         }
 
+        // الحفظ في التراكمي
         teachersData[name].totalDelay += todayDelay;
         teachersData[name].lastArrival = arrivalTimeStr;
         teachersData[name].lastTodayDelay = todayDelay;
+
+        // تسجيل تفاصيل اليوم في مصفوفة history إذا كان هناك تأخير
+        if (todayDelay > 0) {
+            if (!teachersData[name].history) { teachersData[name].history = []; }
+            teachersData[name].history.push({
+                date: currentDate,
+                time: arrivalTimeStr,
+                delay: todayDelay
+            });
+        }
 
         saveDataToStorage();
         renderAllRows();
@@ -365,7 +395,7 @@
         let addedCount = 0;
         names.forEach(name => {
             if (!teachersData[name]) {
-                teachersData[name] = { totalDelay: 0, lastArrival: '-', lastTodayDelay: 0 };
+                teachersData[name] = { totalDelay: 0, lastArrival: '-', lastTodayDelay: 0, history: [] };
                 addedCount++;
             }
         });
@@ -446,6 +476,24 @@
         document.getElementById('printTotalHours').innerText = (data.totalDelay / 60).toFixed(1) + ' ساعة';
         document.getElementById('printLimit').innerText = deductionHours + ' ساعات';
 
+        // تعبئة جدول تفاصيل أيام التأخير
+        const historyTbody = document.getElementById('printHistoryTable');
+        historyTbody.innerHTML = '';
+
+        if (data.history && data.history.length > 0) {
+            data.history.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${item.date}</td>
+                    <td>${item.time}</td>
+                    <td>${item.delay} دقيقة</td>
+                `;
+                historyTbody.appendChild(tr);
+            });
+        } else {
+            historyTbody.innerHTML = '<tr><td colspan="3">لا توجد سجلات تأخير تفصيلية مسجلة.</td></tr>';
+        }
+
         if (data.totalDelay >= limitMinutes) {
             document.getElementById('printStatus').innerText = 'تجاوزت حد الحسم المسموح';
             document.getElementById('noticeText').innerText = 'نحيطكم علماً بأنه قد تم تجاوز الحد المسموح للتأخر، وسوف يتم رفع السجل لاتخاذ الإجراءات النظامية بخصوص الحسم.';
@@ -469,7 +517,7 @@
         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(teachersData, null, 2));
         const downloadAnchor = document.createElement('a');
         downloadAnchor.setAttribute("href", dataStr);
-        downloadAnchor.setAttribute("download", `سجل_تأخر_المعلمات_${new Date().toISOString().slice(0,10)}.json`);
+        downloadAnchor.setAttribute("download", `سجل_تأخر_المعلمات_مدرسة_فاطمة_بنت_اليمان_${new Date().toISOString().slice(0,10)}.json`);
         document.body.appendChild(downloadAnchor);
         downloadAnchor.click();
         downloadAnchor.remove();
