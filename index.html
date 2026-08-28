@@ -31,6 +31,11 @@
             width: 100%;
         }
 
+        .time-input-wrapper {
+            display: flex;
+            gap: 8px;
+        }
+
         label { font-weight: bold; color: #34495e; font-size: 14px; }
         
         input, select, button, textarea { 
@@ -62,6 +67,9 @@
 
         button:hover { background-color: #219150; }
         button:active { transform: scale(0.99); }
+
+        .btn-now { background-color: #3498db; width: auto; whitespace: nowrap; padding: 0 15px; }
+        .btn-now:hover { background-color: #2980b9; }
 
         .btn-bulk { background-color: #16a085; }
         .btn-bulk:hover { background-color: #117a65; }
@@ -164,10 +172,24 @@
         </div>
         <div class="input-group">
             <label for="arrivalTime">وقت الحضور:</label>
-            <input type="time" id="arrivalTime" required>
+            <div class="time-input-wrapper">
+                <!-- حقل الوقت مزود بقائمة مقترحات لساعات الحضور الشائعة -->
+                <input type="time" id="arrivalTime" list="popularTimes" required>
+                <!-- زر إدخال الوقت الحالي بضغطة زر -->
+                <button type="button" class="btn-now" onclick="setCurrentTime()">الآن 🕒</button>
+            </div>
         </div>
+
+        <!-- قائمة الأوقات المقترحة للتسجيل السريع -->
+        <datalist id="popularTimes">
+            <option value="07:05">
+            <option value="07:15">
+            <option value="07:30">
+            <option value="07:45">
+            <option value="08:00">
+        </datalist>
+
         <button onclick="addRecord()">⏱️ تسجيل الحضور</button>
-        <!-- زر الإدخال الجماعي مع الأيقونة -->
         <button class="btn-bulk" onclick="openBulkModal()">👥 إضافة معلمات دفعة واحدة</button>
     </div>
 
@@ -267,6 +289,14 @@
         renderAllRows();
     };
 
+    /* دالة تعبئة وقت الحضور الحالي تلقائياً بنقرة زر */
+    function setCurrentTime() {
+        const now = new Date();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        document.getElementById('arrivalTime').value = `${hours}:${minutes}`;
+    }
+
     function saveSettings() {
         const settings = {
             officialTime: document.getElementById('officialTime').value,
@@ -314,7 +344,6 @@
         document.getElementById('arrivalTime').value = '';
     }
 
-    /* دالّات الإدخال الجماعي */
     function openBulkModal() {
         document.getElementById('bulkModal').style.display = 'flex';
     }
