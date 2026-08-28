@@ -138,7 +138,7 @@
         .btn-print:hover { background-color: #a04000; }
         .delete-btn { background-color: #c0392b; padding: 6px 10px; font-size: 12px; width: 100%; }
 
-        /* شريط التصفية الجديد */
+        /* شريط التصفية */
         .filter-bar {
             display: flex;
             gap: 8px;
@@ -185,7 +185,7 @@
         .modal-buttons { display: flex; gap: 10px; }
         .btn-secondary { background-color: #7f8c8d; }
 
-        /* بطاقات عرض المعلمات */
+        /* بطاقات المعلمات */
         .cards-container {
             display: flex;
             flex-direction: column;
@@ -296,12 +296,13 @@
         </div>
     </div>
 
-    <!-- الإدخال -->
+    <!-- نموذج الإدخال بالقائمة المنسدلة الصريحة -->
     <div class="form-panel">
         <div class="input-group">
-            <label for="teacherNameInput">اسم المعلمة:</label>
-            <input type="text" id="teacherNameInput" list="teachersList" placeholder="اختر من القائمة أو اكتب اسماً جديداً" required>
-            <datalist id="teachersList"></datalist>
+            <label for="teacherSelect">اختر اسم المعلمة:</label>
+            <select id="teacherSelect" required>
+                <option value="">-- اختر المعلمة من القائمة --</option>
+            </select>
         </div>
         <div class="input-group">
             <label for="arrivalTime">وقت الحضور:</label>
@@ -331,7 +332,7 @@
         <button class="btn-clear" onclick="clearAllData()">🗑️ مسح الكل</button>
     </div>
 
-    <!-- شريط التصفية الجديد لتحديد المتأخرات فوراً -->
+    <!-- شريط التصفية -->
     <div class="filter-bar">
         <button class="filter-btn active" onclick="setFilter('all', this)">الكل 👥</button>
         <button class="filter-btn" onclick="setFilter('delayedToday', this)">المتأخرات اليوم ⏱️</button>
@@ -429,7 +430,7 @@
         loadSettings();
         loadDataFromStorage();
         renderAllCards();
-        updateTeachersDatalist();
+        updateTeachersDropdown();
     };
 
     function setTheme(themeName) {
@@ -477,13 +478,15 @@
         }
     }
 
-    function updateTeachersDatalist() {
-        const datalist = document.getElementById('teachersList');
-        datalist.innerHTML = '';
+    // تعبئة القائمة المنسدلة بالأسماء
+    function updateTeachersDropdown() {
+        const select = document.getElementById('teacherSelect');
+        select.innerHTML = '<option value="">-- اختر المعلمة من القائمة --</option>';
         for (let name in teachersData) {
             const option = document.createElement('option');
             option.value = name;
-            datalist.appendChild(option);
+            option.textContent = name;
+            select.appendChild(option);
         }
     }
 
@@ -495,12 +498,17 @@
     }
 
     function addRecord() {
-        const name = document.getElementById('teacherNameInput').value.trim();
+        const select = document.getElementById('teacherSelect');
+        const name = select.value;
         const arrivalTimeStr = document.getElementById('arrivalTime').value;
         const officialTimeStr = document.getElementById('officialTime').value;
 
-        if (!name || !arrivalTimeStr) {
-            alert('يرجى اختيار/كتابة اسم المعلمة وتحديد وقت الحضور.');
+        if (!name) {
+            alert('يرجى اختيار اسم المعلمة من القائمة أولاً.');
+            return;
+        }
+        if (!arrivalTimeStr) {
+            alert('يرجى تحديد وقت الحضور.');
             return;
         }
 
@@ -526,9 +534,8 @@
 
         saveDataToStorage();
         renderAllCards();
-        updateTeachersDatalist();
 
-        document.getElementById('teacherNameInput').value = '';
+        select.value = '';
         document.getElementById('arrivalTime').value = '';
     }
 
@@ -554,7 +561,7 @@
 
         saveDataToStorage();
         renderAllCards();
-        updateTeachersDatalist();
+        updateTeachersDropdown();
         closeBulkModal();
         alert(`تمت إضافة ${addedCount} معلمة بنجاح!`);
     }
@@ -586,7 +593,6 @@
         for (let name in teachersData) {
             const data = teachersData[name];
 
-            // تطبيق التصفية حسب الفلتر المختار
             if (currentFilter === 'delayedToday' && data.lastTodayDelay === 0) continue;
             if (currentFilter === 'limitExceeded' && data.totalDelay < limitMinutes) continue;
 
@@ -685,7 +691,7 @@
             delete teachersData[name];
             saveDataToStorage();
             renderAllCards();
-            updateTeachersDatalist();
+            updateTeachersDropdown();
         }
     }
 
@@ -708,7 +714,7 @@
                     teachersData = importedData;
                     saveDataToStorage();
                     renderAllCards();
-                    updateTeachersDatalist();
+                    updateTeachersDropdown();
                     alert('تم استرداد البيانات بنجاح!');
                 }
             } catch (err) { alert('خطأ في الملف.'); }
@@ -721,7 +727,7 @@
             teachersData = {};
             localStorage.removeItem('teachersAttendanceData');
             renderAllCards();
-            updateTeachersDatalist();
+            updateTeachersDropdown();
         }
     }
 </script>
