@@ -89,8 +89,35 @@
 
         .settings-panel { background: var(--panel-bg); }
         .input-group { display: flex; flex-direction: column; gap: 6px; width: 100%; }
-        .time-input-wrapper { display: flex; gap: 8px; }
+        
+        /* أدوات أسهم حد الحسم */
+        .stepper-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-stepper {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            width: 42px;
+            height: 42px;
+            font-size: 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .stepper-val {
+            flex: 1;
+            text-align: center;
+            font-size: 16px;
+            font-weight: bold;
+            background: white;
+        }
 
+        .time-input-wrapper { display: flex; gap: 8px; }
         label { font-weight: bold; color: var(--primary-color); font-size: 13px; }
         
         input, select, button, textarea { 
@@ -128,6 +155,8 @@
 
         .btn-bulk { background-color: #16a085; }
         .btn-bulk:hover { background-color: #117a65; }
+        .btn-install { background-color: #d35400; }
+        .btn-install:hover { background-color: #a04000; }
         .btn-export { background-color: #2980b9; }
         .btn-export:hover { background-color: #2471a3; }
         .btn-import { background-color: #8e44ad; }
@@ -138,12 +167,7 @@
         .btn-print:hover { background-color: #a04000; }
         .delete-btn { background-color: #c0392b; padding: 6px 10px; font-size: 12px; width: 100%; }
 
-        /* شريط التصفية */
-        .filter-bar {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 12px;
-        }
+        .filter-bar { display: flex; gap: 8px; margin-bottom: 12px; }
         .filter-btn {
             padding: 8px 12px;
             font-size: 12px;
@@ -160,7 +184,6 @@
             border-color: var(--primary-color);
         }
 
-        /* نافذة الإدخال الجماعي */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -185,13 +208,7 @@
         .modal-buttons { display: flex; gap: 10px; }
         .btn-secondary { background-color: #7f8c8d; }
 
-        /* بطاقات المعلمات */
-        .cards-container {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-top: 5px;
-        }
+        .cards-container { display: flex; flex-direction: column; gap: 12px; margin-top: 5px; }
 
         .teacher-card {
             background: #fff;
@@ -205,62 +222,56 @@
             border-right: 5px solid #2ecc71;
         }
 
-        .teacher-card.warning-card {
-            border-right-color: #f39c12;
-            background-color: #fffdf5;
-        }
+        .teacher-card.warning-card { border-right-color: #f39c12; background-color: #fffdf5; }
+        .teacher-card.alert-card { border-right-color: #e74c3c; background-color: #fff5f5; }
 
-        .teacher-card.alert-card {
-            border-right-color: #e74c3c;
-            background-color: #fff5f5;
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px dashed #ddd;
-            padding-bottom: 8px;
-        }
-
+        .card-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #ddd; padding-bottom: 8px; }
         .card-name { font-size: 16px; font-weight: bold; color: var(--primary-color); }
 
-        .card-body {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            font-size: 13px;
-        }
-
+        .card-body { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 13px; }
         .card-item { display: flex; flex-direction: column; }
         .card-item span.label { color: #7f8c8d; font-size: 11px; }
         .card-item span.val { font-weight: bold; }
         .card-actions { display: flex; gap: 8px; margin-top: 5px; }
 
-        .badge {
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: bold;
-            color: white;
-        }
+        .badge { padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; color: white; }
         .badge-alert { background-color: #e74c3c; }
         .badge-warning { background-color: #f39c12; }
         .badge-normal { background-color: #2ecc71; }
 
+        /* إعدادات الطباعة الدقيقة لصفحة واحدة محددة الأبعاد */
         #printArea { display: none; }
         @media print {
+            @page { size: A4 portrait; margin: 10mm; }
             body * { visibility: hidden; }
             #printArea, #printArea * { visibility: visible; }
-            #printArea { display: block !important; position: absolute; left: 0; top: 0; width: 100%; padding: 25px; background: white; color: black; }
+            #printArea { 
+                display: block !important; 
+                position: absolute; 
+                left: 0; top: 0; 
+                width: 100%; 
+                max-height: 100vh;
+                padding: 15px; 
+                background: white; 
+                color: black;
+                box-sizing: border-box;
+            }
             .no-print { display: none !important; }
         }
-        .notice-card { border: 2px solid var(--primary-color); padding: 25px; border-radius: 10px; line-height: 1.8; font-size: 15px; }
-        .notice-header { text-align: center; border-bottom: 2px solid var(--primary-color); padding-bottom: 15px; margin-bottom: 20px; }
+
+        .notice-card { 
+            border: 2px solid var(--primary-color); 
+            padding: 20px; 
+            border-radius: 8px; 
+            line-height: 1.6; 
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        .notice-header { text-align: center; border-bottom: 2px solid var(--primary-color); padding-bottom: 10px; margin-bottom: 15px; }
         .notice-title { font-size: 18px; font-weight: bold; color: var(--primary-color); }
-        .notice-table { width: 100%; margin: 15px 0; border-collapse: collapse; }
-        .notice-table th, .notice-table td { border: 1px solid #333; padding: 8px; text-align: center; }
-        .notice-footer { margin-top: 35px; display: flex; justify-content: space-between; padding: 0 20px; }
+        .notice-table { width: 100%; margin: 10px 0; border-collapse: collapse; }
+        .notice-table th, .notice-table td { border: 1px solid #333; padding: 6px; text-align: center; font-size: 13px; }
+        .notice-footer { margin-top: 30px; display: flex; justify-content: space-between; padding: 0 15px; }
         .signature-box { text-align: center; font-weight: bold; }
     </style>
 </head>
@@ -280,7 +291,7 @@
         <div class="theme-dot theme-burgundy" onclick="setTheme('burgundy')" title="عنابي"></div>
     </div>
 
-    <!-- الإعدادات -->
+    <!-- الإعدادات مع أسهم الصعود والنزول -->
     <div class="settings-panel">
         <div class="input-group">
             <label for="schoolName">اسم المدرسة:</label>
@@ -291,12 +302,16 @@
             <input type="time" id="officialTime" value="07:00" onchange="saveSettings()">
         </div>
         <div class="input-group">
-            <label for="deductionLimit">حد الحسم (بالساعات):</label>
-            <input type="number" id="deductionLimit" value="7" min="1" onchange="saveSettings()">
+            <label>حد الحسم (بالساعات):</label>
+            <div class="stepper-wrapper">
+                <button type="button" class="btn-stepper" onclick="adjustLimit(-1)">➖</button>
+                <input type="number" id="deductionLimit" class="stepper-val" value="7" readonly>
+                <button type="button" class="btn-stepper" onclick="adjustLimit(1)">➕</button>
+            </div>
         </div>
     </div>
 
-    <!-- نموذج الإدخال بالقائمة المنسدلة الصريحة -->
+    <!-- النموذج -->
     <div class="form-panel">
         <div class="input-group">
             <label for="teacherSelect">اختر اسم المعلمة:</label>
@@ -322,9 +337,10 @@
 
         <button onclick="addRecord()">⏱️ تسجيل الحضور</button>
         <button class="btn-bulk" onclick="openBulkModal()">👥 إضافة معلمات دفعة واحدة</button>
+        <button class="btn-install" onclick="installApp()">📱 تثبيت التطبيق على الشاشة</button>
     </div>
 
-    <!-- العمليات -->
+    <!-- الأدوات -->
     <div class="action-bar">
         <button class="btn-export" onclick="exportData()">💾 تصدير نسخة احتياطية</button>
         <button class="btn-import" onclick="document.getElementById('importFile').click()">📂 استرداد بيانات من ملف</button>
@@ -332,18 +348,18 @@
         <button class="btn-clear" onclick="clearAllData()">🗑️ مسح الكل</button>
     </div>
 
-    <!-- شريط التصفية -->
+    <!-- التصفية والفرز -->
     <div class="filter-bar">
         <button class="filter-btn active" onclick="setFilter('all', this)">الكل 👥</button>
         <button class="filter-btn" onclick="setFilter('delayedToday', this)">المتأخرات اليوم ⏱️</button>
         <button class="filter-btn" onclick="setFilter('limitExceeded', this)">تجاوزن الحسم ⚠️</button>
     </div>
 
-    <!-- عرض البطاقات -->
+    <!-- البطاقات مرتبة تنازلياً حسب التأخير -->
     <div class="cards-container" id="attendanceCards"></div>
 </div>
 
-<!-- النافذة المنبثقة للإدخال الجماعي -->
+<!-- النافذة المنبثقة الإدخال الجماعي -->
 <div class="modal-overlay" id="bulkModal">
     <div class="modal-content">
         <h3 style="margin: 0; color: var(--primary-color); font-size: 16px;">👥 إضافة أسماء المعلمات دفعة واحدة</h3>
@@ -356,7 +372,7 @@
     </div>
 </div>
 
-<!-- ورقة الطباعة -->
+<!-- الإشعار المخصص للطباعة بصفحة واحدة محددة الإطار -->
 <div id="printArea">
     <div class="notice-card">
         <div class="notice-header">
@@ -364,13 +380,13 @@
                 <span id="printSchool">مدرسة فاطمة بنت اليمان</span><br>
                 <span style="font-size: 11px; color: #555;">إعداد: منى عامر الرحيلي</span>
             </div>
-            <div style="font-size: 13px; font-weight: bold; float: left;" id="printDate">التاريخ: </div>
+            <div style="font-size: 12px; font-weight: bold; float: left;" id="printDate">التاريخ: </div>
             <div style="clear: both;"></div>
-            <div class="notice-title" style="margin-top: 15px;">إشعار وتنبيه بمجموع تأخر المعلمة</div>
+            <div class="notice-title" style="margin-top: 10px;">إشعار وتنبيه بمجموع تأخر المعلمة</div>
         </div>
 
         <div class="notice-body">
-            <p>المكرمة المعلمة: <strong id="printTeacherName" style="font-size: 17px; text-decoration: underline;"></strong> المحترمة</p>
+            <p>المكرمة المعلمة: <strong id="printTeacherName" style="font-size: 16px; text-decoration: underline;"></strong> المحترمة</p>
             <p>السلام عليكم ورحمة الله وبركاته،،،</p>
             <p>نحيطكم علماً بأنه لوحظ تكرار تأخركم عن وقت الحضور الرسمي للمدرسة، حيث بلغ مجموع تأخيراتكم التراكمية حتى هذا اليوم كالتالي:</p>
 
@@ -386,14 +402,14 @@
                 <tbody>
                     <tr>
                         <td id="printTotalMins" style="font-weight: bold;">0 دقيقة</td>
-                        <td id="printTotalHours" style="font-size: 16px; font-weight: bold; color: #c0392b;">0 ساعة</td>
+                        <td id="printTotalHours" style="font-size: 15px; font-weight: bold; color: #c0392b;">0 ساعة</td>
                         <td id="printLimit">7 ساعات</td>
                         <td id="printStatus">تنبيه بالاقتراب من حد الحسم</td>
                     </tr>
                 </tbody>
             </table>
 
-            <p style="margin-top: 15px; font-weight: bold;">تفاصيل أيام وأوقات التأخير المسجلة:</p>
+            <p style="margin-top: 10px; font-weight: bold; font-size: 13px;">تفاصيل أيام وأوقات التأخير المسجلة:</p>
             <table class="notice-table">
                 <thead>
                     <tr>
@@ -405,7 +421,7 @@
                 <tbody id="printHistoryTable"></tbody>
             </table>
 
-            <p id="noticeText" style="margin-top: 15px;">نأمل منكم الالتزام بالحضور في الوقت المخصص حرصاً على سير العملية التعليمية وتفادياً للوصول للحد الذي يستوجب تطبيق الحسم النظامي.</p>
+            <p id="noticeText" style="margin-top: 10px; font-size: 13px;">نأمل منكم الالتزام بالحضور في الوقت المخصص حرصاً على سير العملية التعليمية وتفادياً للوصول للحد الذي يستوجب تطبيق الحسم النظامي.</p>
         </div>
 
         <div class="notice-footer">
@@ -447,6 +463,15 @@
         setTheme(savedTheme);
     }
 
+    function adjustLimit(delta) {
+        const input = document.getElementById('deductionLimit');
+        let currentVal = parseInt(input.value) || 7;
+        currentVal += delta;
+        if (currentVal < 1) currentVal = 1;
+        input.value = currentVal;
+        saveSettings();
+    }
+
     function setCurrentTime() {
         const now = new Date();
         const hours = String(now.getHours()).padStart(2, '0');
@@ -478,7 +503,6 @@
         }
     }
 
-    // تعبئة القائمة المنسدلة بالأسماء
     function updateTeachersDropdown() {
         const select = document.getElementById('teacherSelect');
         select.innerHTML = '<option value="">-- اختر المعلمة من القائمة --</option>';
@@ -580,6 +604,7 @@
         if (saved) { teachersData = JSON.parse(saved); }
     }
 
+    /* عرض البطاقات مرتبة من الأكثر تأخيراً إلى الأقل */
     function renderAllCards() {
         const container = document.getElementById('attendanceCards');
         container.innerHTML = '';
@@ -588,13 +613,18 @@
         const limitMinutes = deductionHours * 60;
         const warningMinutes = limitMinutes * 0.75;
 
+        // تحويل البيانات إلى مصفوفة وترتيبها تنازلياً حسب إجمالي التأخير (totalDelay)
+        let teachersArray = Object.keys(teachersData).map(name => {
+            return { name: name, ...teachersData[name] };
+        });
+
+        teachersArray.sort((a, b) => b.totalDelay - a.totalDelay);
+
         let visibleCount = 0;
 
-        for (let name in teachersData) {
-            const data = teachersData[name];
-
-            if (currentFilter === 'delayedToday' && data.lastTodayDelay === 0) continue;
-            if (currentFilter === 'limitExceeded' && data.totalDelay < limitMinutes) continue;
+        teachersArray.forEach(data => {
+            if (currentFilter === 'delayedToday' && data.lastTodayDelay === 0) return;
+            if (currentFilter === 'limitExceeded' && data.totalDelay < limitMinutes) return;
 
             visibleCount++;
 
@@ -615,7 +645,7 @@
             card.className = cardClass;
             card.innerHTML = `
                 <div class="card-header">
-                    <span class="card-name">👤 ${name}</span>
+                    <span class="card-name">👤 ${data.name}</span>
                     ${statusBadge}
                 </div>
                 <div class="card-body">
@@ -633,12 +663,12 @@
                     </div>
                 </div>
                 <div class="card-actions">
-                    <button class="btn-print" onclick="printTeacherNotice('${name}')">🖨️ طباعة إشعار</button>
-                    <button class="delete-btn" onclick="deleteTeacher('${name}')">حذف</button>
+                    <button class="btn-print" onclick="printTeacherNotice('${data.name}')">🖨️ طباعة إشعار</button>
+                    <button class="delete-btn" onclick="deleteTeacher('${data.name}')">حذف</button>
                 </div>
             `;
             container.appendChild(card);
-        }
+        });
 
         if (visibleCount === 0) {
             container.innerHTML = '<div style="text-align:center; color:#7f8c8d; padding:20px;">لا توجد سجلات تطابق الفلتر المختار.</div>';
@@ -693,6 +723,10 @@
             renderAllCards();
             updateTeachersDropdown();
         }
+    }
+
+    function installApp() {
+        alert("لتثبيت هذا التطبيق على الشاشة الرئيسية للجوال:\n\n1️⃣ اضغطي على خيارات المتصفح (⋮) أو زر المشاركة (Share).\n2️⃣ اختاري 'الإضافة إلى الشاشة الرئيسية' (Add to Home Screen).");
     }
 
     function exportData() {
