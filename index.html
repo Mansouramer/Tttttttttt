@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>نظام متابعة تأخر المعلمات - مدرسة فاطمة بنت اليمان</title>
+    <!-- مكتبة المسح الضوئي واستخراج النصوص Tesseract.js -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
     <style>
         :root {
             --primary-color: #2c3e50;
@@ -90,7 +92,6 @@
         .settings-panel { background: var(--panel-bg); }
         .input-group { display: flex; flex-direction: column; gap: 6px; width: 100%; }
         
-        /* تصميم أسهم زيادة ونقص الساعات والدقائق */
         .stepper-wrapper {
             display: flex;
             align-items: center;
@@ -153,12 +154,14 @@
         button:active { transform: scale(0.99); }
 
         .btn-now { background-color: #3498db; width: auto; white-space: nowrap; padding: 0 12px; font-size: 13px; flex-shrink: 0; }
-        .btn-now:hover { background-color: #2980b9; }
+        .btn-today { background-color: #8e44ad; width: auto; white-space: nowrap; padding: 0 12px; font-size: 13px; flex-shrink: 0; }
+        .btn-ocr { background-color: #d35400; }
+        .btn-ocr:hover { background-color: #a04000; }
 
         .btn-bulk { background-color: #16a085; }
         .btn-bulk:hover { background-color: #117a65; }
-        .btn-install { background-color: #d35400; }
-        .btn-install:hover { background-color: #a04000; }
+        .btn-install { background-color: #2980b9; }
+        .btn-install:hover { background-color: #2471a3; }
         .btn-export { background-color: #2980b9; }
         .btn-export:hover { background-color: #2471a3; }
         .btn-import { background-color: #8e44ad; }
@@ -186,6 +189,7 @@
             border-color: var(--primary-color);
         }
 
+        /* نافذة المعالجة والمسح الضوئي */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -241,7 +245,6 @@
         .badge-warning { background-color: #f39c12; }
         .badge-normal { background-color: #2ecc71; }
 
-        /* الطباعة الإطار الموحد صفحة واحدة */
         #printArea { display: none; }
         @media print {
             @page { size: A4 portrait; margin: 10mm; }
@@ -275,6 +278,14 @@
         .notice-table th, .notice-table td { border: 1px solid #333; padding: 6px; text-align: center; font-size: 13px; }
         .notice-footer { margin-top: 30px; display: flex; justify-content: space-between; padding: 0 15px; }
         .signature-box { text-align: center; font-weight: bold; }
+
+        .loader-ocr {
+            display: none;
+            text-align: center;
+            font-weight: bold;
+            color: var(--primary-color);
+            padding: 10px;
+        }
     </style>
 </head>
 <body>
@@ -313,7 +324,7 @@
         </div>
     </div>
 
-    <!-- النموذج مضاف إليه أسهم التحكم بالدقائق في اليمين -->
+    <!-- نموذج الإدخال والمسح الضوئي -->
     <div class="form-panel">
         <div class="input-group">
             <label for="teacherSelect">اختر اسم المعلمة:</label>
@@ -321,12 +332,22 @@
                 <option value="">-- اختر المعلمة من القائمة --</option>
             </select>
         </div>
+
+        <div class="input-group">
+            <label for="recordDate">تاريخ التأخير 📅:</label>
+            <div class="time-input-wrapper">
+                <button type="button" class="btn-stepper" onclick="adjustDate(-1)" title="اليوم السابق">⬅️</button>
+                <input type="date" id="recordDate" required>
+                <button type="button" class="btn-stepper" onclick="adjustDate(1)" title="اليوم التالي">➡️</button>
+                <button type="button" class="btn-today" onclick="setTodayDate()">اليوم 📅</button>
+            </div>
+        </div>
+
         <div class="input-group">
             <label for="arrivalTime">وقت الحضور:</label>
             <div class="time-input-wrapper">
-                <!-- أسهم التحكم في زيادة وتنقيص الدقائق على اليمين -->
-                <button type="button" class="btn-stepper" onclick="adjustMinutes(1)" title="زيادة دقيقة">➕</button>
-                <button type="button" class="btn-stepper" onclick="adjustMinutes(-1)" title="نقص دقيقة">➖</button>
+                <button type="button" class="btn-stepper" onclick="adjustMinutes(1)">➕</button>
+                <button type="button" class="btn-stepper" onclick="adjustMinutes(-1)">➖</button>
                 <input type="time" id="arrivalTime" list="popularTimes" required>
                 <button type="button" class="btn-now" onclick="setCurrentTime()">الآن 🕒</button>
             </div>
@@ -341,6 +362,11 @@
         </datalist>
 
         <button onclick="addRecord()">⏱️ تسجيل الحضور</button>
+        <button class="btn-ocr" onclick="document.getElementById('ocrFile').click()">📷 مسح ضوئي لورقة/صورة (OCR)</button>
+        <input type="file" id="ocrFile" style="display:none" accept="image/*" onchange="processOCRImage(event)">
+
+        <div id="ocrLoader" class="loader-ocr">⏳ جاري قراءة ومسح الورقة ضوئياً... يرجى الانتظار</div>
+
         <button class="btn-bulk" onclick="openBulkModal()">👥 إضافة معلمات دفعة واحدة</button>
         <button class="btn-install" onclick="installApp()">📱 تثبيت التطبيق على الشاشة</button>
     </div>
@@ -363,7 +389,7 @@
     <div class="cards-container" id="attendanceCards"></div>
 </div>
 
-<!-- النافذة المنبثقة -->
+<!-- النافذة المنبثقة الإدخال الجماعي -->
 <div class="modal-overlay" id="bulkModal">
     <div class="modal-content">
         <h3 style="margin: 0; color: var(--primary-color); font-size: 16px;">👥 إضافة أسماء المعلمات دفعة واحدة</h3>
@@ -448,6 +474,7 @@
     window.onload = function() {
         loadTheme();
         loadSettings();
+        setTodayDate();
         loadDataFromStorage();
         renderAllCards();
         updateTeachersDropdown();
@@ -467,6 +494,18 @@
         setTheme(savedTheme);
     }
 
+    function setTodayDate() {
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('recordDate').value = today;
+    }
+
+    function adjustDate(days) {
+        const dateInput = document.getElementById('recordDate');
+        let current = new Date(dateInput.value || Date.now());
+        current.setDate(current.getDate() + days);
+        dateInput.value = current.toISOString().split('T')[0];
+    }
+
     function adjustLimit(delta) {
         const input = document.getElementById('deductionLimit');
         let currentVal = parseInt(input.value) || 7;
@@ -476,7 +515,6 @@
         saveSettings();
     }
 
-    /* دالة زيارة أو نقص الدقائق في حقل وقت الحضور */
     function adjustMinutes(deltaMinutes) {
         const timeInput = document.getElementById('arrivalTime');
         let val = timeInput.value;
@@ -547,6 +585,7 @@
         const name = select.value;
         const arrivalTimeStr = document.getElementById('arrivalTime').value;
         const officialTimeStr = document.getElementById('officialTime').value;
+        const selectedDate = document.getElementById('recordDate').value;
 
         if (!name) {
             alert('يرجى اختيار اسم المعلمة من القائمة أولاً.');
@@ -556,9 +595,13 @@
             alert('يرجى تحديد وقت الحضور.');
             return;
         }
+        if (!selectedDate) {
+            alert('يرجى تحديد التاريخ.');
+            return;
+        }
 
         const todayDelay = calculateMinutesDelay(officialTimeStr, arrivalTimeStr);
-        const currentDate = new Date().toLocaleDateString('ar-SA');
+        const formattedDate = new Date(selectedDate).toLocaleDateString('ar-SA');
 
         if (!teachersData[name]) {
             teachersData[name] = { totalDelay: 0, lastArrival: arrivalTimeStr, lastTodayDelay: 0, history: [] };
@@ -571,7 +614,7 @@
         if (todayDelay > 0) {
             if (!teachersData[name].history) { teachersData[name].history = []; }
             teachersData[name].history.push({
-                date: currentDate,
+                date: formattedDate,
                 time: arrivalTimeStr,
                 delay: todayDelay
             });
@@ -582,6 +625,68 @@
 
         select.value = '';
         document.getElementById('arrivalTime').value = '';
+    }
+
+    /* دالة المسح الضوئي الذكي للصور المستندات */
+    function processOCRImage(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const loader = document.getElementById('ocrLoader');
+        loader.style.display = 'block';
+
+        Tesseract.recognize(
+            file,
+            'ara+eng',
+            { logger: m => console.log(m) }
+        ).then(({ data: { text } }) => {
+            loader.style.display = 'none';
+            parseOCRText(text);
+        }).catch(err => {
+            loader.style.display = 'none';
+            alert('حدث خطأ أثناء المسح الضوئي للصورة، يرجى التأكد من وضوح المستند.');
+        });
+    }
+
+    function parseOCRText(text) {
+        const lines = text.split('\n');
+        let count = 0;
+        const timeRegex = /([0-1]?[0-9]|2[0-3]):[0-5][0-9]/;
+        const officialTimeStr = document.getElementById('officialTime').value;
+        const selectedDate = document.getElementById('recordDate').value;
+        const formattedDate = new Date(selectedDate).toLocaleDateString('ar-SA');
+
+        lines.forEach(line => {
+            const timeMatch = line.match(timeRegex);
+            if (timeMatch) {
+                const arrivalTimeStr = timeMatch[0];
+                let name = line.replace(timeRegex, '').replace(/[0-9]/g, '').trim();
+                if (name.length > 2) {
+                    const todayDelay = calculateMinutesDelay(officialTimeStr, arrivalTimeStr);
+                    if (!teachersData[name]) {
+                        teachersData[name] = { totalDelay: 0, lastArrival: arrivalTimeStr, lastTodayDelay: 0, history: [] };
+                    }
+                    teachersData[name].totalDelay += todayDelay;
+                    teachersData[name].lastArrival = arrivalTimeStr;
+                    teachersData[name].lastTodayDelay = todayDelay;
+
+                    if (todayDelay > 0) {
+                        if (!teachersData[name].history) { teachersData[name].history = []; }
+                        teachersData[name].history.push({
+                            date: formattedDate,
+                            time: arrivalTimeStr,
+                            delay: todayDelay
+                        });
+                    }
+                    count++;
+                }
+            }
+        });
+
+        saveDataToStorage();
+        renderAllCards();
+        updateTeachersDropdown();
+        alert(`تمت قراءة البيانات بنجاح واستخراج ${count} سجل من الصورة!`);
     }
 
     function openBulkModal() { document.getElementById('bulkModal').style.display = 'flex'; }
