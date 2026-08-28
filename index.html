@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>نظام متابعة تأخر المعلمات - مدرسة فاطمة بنت اليمان</title>
-    <!-- مكتبة المسح الضوئي واستخراج النصوص Tesseract.js -->
+    <link rel="manifest" id="manifestLink">
+    <meta name="theme-color" content="#2c3e50">
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
     <style>
         :root {
@@ -170,6 +171,8 @@
         .btn-clear:hover { background-color: #c0392b; }
         .btn-print { background-color: #d35400; padding: 6px 10px; font-size: 12px; width: 100%; }
         .btn-print:hover { background-color: #a04000; }
+        .btn-history { background-color: #27ae60; padding: 6px 10px; font-size: 12px; width: 100%; }
+        .btn-history:hover { background-color: #219150; }
         .delete-btn { background-color: #c0392b; padding: 6px 10px; font-size: 12px; width: 100%; }
 
         .filter-bar { display: flex; gap: 8px; margin-bottom: 12px; }
@@ -189,7 +192,6 @@
             border-color: var(--primary-color);
         }
 
-        /* نافذة المعالجة والمسح الضوئي */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -209,6 +211,8 @@
             display: flex;
             flex-direction: column;
             gap: 12px;
+            max-height: 85vh;
+            overflow-y: auto;
         }
 
         .modal-buttons { display: flex; gap: 10px; }
@@ -228,7 +232,8 @@
             border-right: 5px solid #2ecc71;
         }
 
-        .teacher-card.warning-card { border-right-color: #f39c12; background-color: #fffdf5; }
+        .teacher-card.warning1-card { border-right-color: #f39c12; background-color: #fffdf5; }
+        .teacher-card.warning2-card { border-right-color: #e67e22; background-color: #fff8f0; }
         .teacher-card.alert-card { border-right-color: #e74c3c; background-color: #fff5f5; }
 
         .card-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #ddd; padding-bottom: 8px; }
@@ -238,12 +243,42 @@
         .card-item { display: flex; flex-direction: column; }
         .card-item span.label { color: #7f8c8d; font-size: 11px; }
         .card-item span.val { font-weight: bold; }
-        .card-actions { display: flex; gap: 8px; margin-top: 5px; }
+        .card-actions { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-top: 5px; }
 
         .badge { padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; color: white; }
         .badge-alert { background-color: #e74c3c; }
-        .badge-warning { background-color: #f39c12; }
+        .badge-warning2 { background-color: #e67e22; }
+        .badge-warning1 { background-color: #f39c12; }
         .badge-normal { background-color: #2ecc71; }
+
+        .history-drawer {
+            display: none;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 10px;
+            margin-top: 5px;
+            font-size: 12px;
+        }
+        .history-drawer.active { display: block; }
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            border-bottom: 1px solid #edf2f7;
+        }
+        .history-item:last-child { border-bottom: none; }
+        .btn-del-item {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-size: 10px;
+            cursor: pointer;
+            width: auto;
+        }
 
         #printArea { display: none; }
         @media print {
@@ -368,7 +403,7 @@
         <div id="ocrLoader" class="loader-ocr">⏳ جاري قراءة ومسح الورقة ضوئياً... يرجى الانتظار</div>
 
         <button class="btn-bulk" onclick="openBulkModal()">👥 إضافة معلمات دفعة واحدة</button>
-        <button class="btn-install" onclick="installApp()">📱 تثبيت التطبيق على الشاشة</button>
+        <button class="btn-install" id="installBtn" onclick="installApp()">📱 تثبيت التطبيق على الشاشة</button>
     </div>
 
     <!-- الأدوات -->
@@ -470,6 +505,47 @@
 <script>
     let teachersData = {};
     let currentFilter = 'all';
+    let deferredPrompt = null;
+
+    (function initPWA() {
+        const manifest = {
+            "name": "نظام متابعة تأخر المعلمات",
+            "short_name": "تأخر المعلمات",
+            "start_url": ".",
+            "display": "standalone",
+            "background_color": "#ffffff",
+            "theme_color": "#2c3e50",
+            "icons": [
+                {
+                    "src": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%232c3e50'/><text x='50%' y='55%' dominant-baseline='middle' text-anchor='middle' font-size='260' fill='white'>⏱️</text></svg>",
+                    "sizes": "512x512",
+                    "type": "image/svg+xml"
+                }
+            ]
+        };
+        const stringManifest = JSON.stringify(manifest);
+        const blob = new Blob([stringManifest], {type: 'application/json'});
+        const manifestURL = URL.createObjectURL(blob);
+        document.getElementById('manifestLink').setAttribute('href', manifestURL);
+
+        if ('serviceWorker' in navigator) {
+            const swCode = `
+                self.addEventListener('install', e => e.waitUntil(self.skipWaiting()));
+                self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
+                self.addEventListener('fetch', e => e.respondWith(fetch(e.request).catch(() => new Response())));
+            `;
+            const swBlob = new Blob([swCode], {type: 'text/javascript'});
+            const swURL = URL.createObjectURL(swBlob);
+            navigator.serviceWorker.register(swURL).catch(() => {});
+        }
+    })();
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        const btn = document.getElementById('installBtn');
+        if (btn) btn.style.display = 'block';
+    });
 
     window.onload = function() {
         loadTheme();
@@ -604,17 +680,19 @@
         const formattedDate = new Date(selectedDate).toLocaleDateString('ar-SA');
 
         if (!teachersData[name]) {
-            teachersData[name] = { totalDelay: 0, lastArrival: arrivalTimeStr, lastTodayDelay: 0, history: [] };
+            teachersData[name] = { totalDelay: 0, lastArrival: arrivalTimeStr, lastTodayDelay: 0, lastDate: selectedDate, history: [] };
         }
 
         teachersData[name].totalDelay += todayDelay;
         teachersData[name].lastArrival = arrivalTimeStr;
         teachersData[name].lastTodayDelay = todayDelay;
+        teachersData[name].lastDate = selectedDate;
 
         if (todayDelay > 0) {
             if (!teachersData[name].history) { teachersData[name].history = []; }
             teachersData[name].history.push({
                 date: formattedDate,
+                rawDate: selectedDate,
                 time: arrivalTimeStr,
                 delay: todayDelay
             });
@@ -627,7 +705,6 @@
         document.getElementById('arrivalTime').value = '';
     }
 
-    /* دالة المسح الضوئي الذكي للصور المستندات */
     function processOCRImage(event) {
         const file = event.target.files[0];
         if (!file) return;
@@ -664,16 +741,18 @@
                 if (name.length > 2) {
                     const todayDelay = calculateMinutesDelay(officialTimeStr, arrivalTimeStr);
                     if (!teachersData[name]) {
-                        teachersData[name] = { totalDelay: 0, lastArrival: arrivalTimeStr, lastTodayDelay: 0, history: [] };
+                        teachersData[name] = { totalDelay: 0, lastArrival: arrivalTimeStr, lastTodayDelay: 0, lastDate: selectedDate, history: [] };
                     }
                     teachersData[name].totalDelay += todayDelay;
                     teachersData[name].lastArrival = arrivalTimeStr;
                     teachersData[name].lastTodayDelay = todayDelay;
+                    teachersData[name].lastDate = selectedDate;
 
                     if (todayDelay > 0) {
                         if (!teachersData[name].history) { teachersData[name].history = []; }
                         teachersData[name].history.push({
                             date: formattedDate,
+                            rawDate: selectedDate,
                             time: arrivalTimeStr,
                             delay: todayDelay
                         });
@@ -704,7 +783,7 @@
         let addedCount = 0;
         names.forEach(name => {
             if (!teachersData[name]) {
-                teachersData[name] = { totalDelay: 0, lastArrival: '-', lastTodayDelay: 0, history: [] };
+                teachersData[name] = { totalDelay: 0, lastArrival: '-', lastTodayDelay: 0, lastDate: '', history: [] };
                 addedCount++;
             }
         });
@@ -730,13 +809,35 @@
         if (saved) { teachersData = JSON.parse(saved); }
     }
 
+    function toggleHistoryDrawer(name) {
+        const drawer = document.getElementById(`drawer-${name.replace(/\s+/g, '-')}`);
+        if (drawer) {
+            drawer.classList.toggle('active');
+        }
+    }
+
+    function deleteHistoryItem(name, index) {
+        if (confirm('هل ترغبين في حذف هذا التأخير بالتحديد؟')) {
+            const item = teachersData[name].history[index];
+            teachersData[name].totalDelay -= item.delay;
+            if (teachersData[name].totalDelay < 0) teachersData[name].totalDelay = 0;
+
+            teachersData[name].history.splice(index, 1);
+
+            saveDataToStorage();
+            renderAllCards();
+        }
+    }
+
     function renderAllCards() {
         const container = document.getElementById('attendanceCards');
         container.innerHTML = '';
 
         const deductionHours = parseFloat(document.getElementById('deductionLimit').value) || 7;
         const limitMinutes = deductionHours * 60;
-        const warningMinutes = limitMinutes * 0.75;
+        const warning1Minutes = limitMinutes * 0.50; // التنبيه الأول (50%)
+        const warning2Minutes = limitMinutes * 0.75; // التنبيه الثاني (75%)
+        const selectedDateInput = document.getElementById('recordDate').value;
 
         let teachersArray = Object.keys(teachersData).map(name => {
             return { name: name, ...teachersData[name] };
@@ -747,7 +848,9 @@
         let visibleCount = 0;
 
         teachersArray.forEach(data => {
-            if (currentFilter === 'delayedToday' && data.lastTodayDelay === 0) return;
+            const isDelayedToday = data.lastTodayDelay > 0 && (data.lastDate === selectedDateInput || !data.lastDate);
+
+            if (currentFilter === 'delayedToday' && !isDelayedToday) return;
             if (currentFilter === 'limitExceeded' && data.totalDelay < limitMinutes) return;
 
             visibleCount++;
@@ -757,13 +860,34 @@
 
             if (data.totalDelay >= limitMinutes) {
                 cardClass += ' alert-card';
-                statusBadge = `<span class="badge badge-alert">تجاوزت الحسم</span>`;
-            } else if (data.totalDelay >= warningMinutes) {
-                cardClass += ' warning-card';
-                statusBadge = `<span class="badge badge-warning">قريبة من الحسم</span>`;
+                statusBadge = `<span class="badge badge-alert">⛔ تجاوزت الحسم</span>`;
+            } else if (data.totalDelay >= warning2Minutes) {
+                cardClass += ' warning2-card';
+                statusBadge = `<span class="badge badge-warning2">🚨 تنبيه ثاني</span>`;
+            } else if (data.totalDelay >= warning1Minutes) {
+                cardClass += ' warning1-card';
+                statusBadge = `<span class="badge badge-warning1">⚠️ تنبيه أول</span>`;
             } else {
                 statusBadge = `<span class="badge badge-normal">منتظمة</span>`;
             }
+
+            const safeId = data.name.replace(/\s+/g, '-');
+
+            let historyListHtml = '';
+            if (data.history && data.history.length > 0) {
+                data.history.forEach((h, idx) => {
+                    historyListHtml += `
+                        <div class="history-item">
+                            <span>📅 ${h.date} | ⏱️ الحضور: ${h.time} (${h.delay} دقيقة)</span>
+                            <button class="btn-del-item" onclick="deleteHistoryItem('${data.name}', ${idx})">حذف</button>
+                        </div>
+                    `;
+                });
+            } else {
+                historyListHtml = '<div style="color:#7f8c8d; text-align:center;">لا توجد سجلات أخر تفصيلية</div>';
+            }
+
+            const formattedLastDate = data.lastDate ? new Date(data.lastDate).toLocaleDateString('ar-SA') : 'اليوم';
 
             const card = document.createElement('div');
             card.className = cardClass;
@@ -778,8 +902,8 @@
                         <span class="val">${data.lastArrival}</span>
                     </div>
                     <div class="card-item">
-                        <span class="label">تأخير اليوم:</span>
-                        <span class="val">${data.lastTodayDelay} دقيقة</span>
+                        <span class="label">تأخير آخر يوم (${formattedLastDate}):</span>
+                        <span class="val" style="color: #c0392b;">${data.lastTodayDelay} دقيقة</span>
                     </div>
                     <div class="card-item" style="grid-column: span 2;">
                         <span class="label">إجمالي التأخير التراكمي:</span>
@@ -787,8 +911,13 @@
                     </div>
                 </div>
                 <div class="card-actions">
-                    <button class="btn-print" onclick="printTeacherNotice('${data.name}')">🖨️ طباعة إشعار</button>
+                    <button class="btn-history" onclick="toggleHistoryDrawer('${data.name}')">📅 السجل (${data.history ? data.history.length : 0})</button>
+                    <button class="btn-print" onclick="printTeacherNotice('${data.name}')">🖨️ إشعار</button>
                     <button class="delete-btn" onclick="deleteTeacher('${data.name}')">حذف</button>
+                </div>
+                <div class="history-drawer" id="drawer-${safeId}">
+                    <strong style="display:block; margin-bottom:5px; color:var(--primary-color);">تفاصيل أيام وأوقات التأخير:</strong>
+                    ${historyListHtml}
                 </div>
             `;
             container.appendChild(card);
@@ -803,6 +932,8 @@
         const data = teachersData[name];
         const deductionHours = parseFloat(document.getElementById('deductionLimit').value) || 7;
         const limitMinutes = deductionHours * 60;
+        const warning1Minutes = limitMinutes * 0.50;
+        const warning2Minutes = limitMinutes * 0.75;
         const schoolName = document.getElementById('schoolName').value;
 
         document.getElementById('printSchool').innerText = schoolName;
@@ -832,9 +963,15 @@
         if (data.totalDelay >= limitMinutes) {
             document.getElementById('printStatus').innerText = 'تجاوزت حد الحسم المسموح';
             document.getElementById('noticeText').innerText = 'نحيطكم علماً بأنه قد تم تجاوز الحد المسموح للتأخر، وسوف يتم رفع السجل لاتخاذ الإجراءات النظامية بخصوص الحسم.';
-        } else {
-            document.getElementById('printStatus').innerText = 'تنبيه بالاقتراب من حد الحسم';
+        } else if (data.totalDelay >= warning2Minutes) {
+            document.getElementById('printStatus').innerText = 'التنبيه الثاني (اقتراب حرج من حد الحسم)';
+            document.getElementById('noticeText').innerText = 'نحيطكم علماً بأنكم وصلتِ للتنبيه الثاني باقترابكم من استكمال حد الحسم النظامي، نأمل الالتزام التام بتسجيل الحضور في الوقت المحدد.';
+        } else if (data.totalDelay >= warning1Minutes) {
+            document.getElementById('printStatus').innerText = 'التنبيه الأول (بلوغ منتصف الحد)';
             document.getElementById('noticeText').innerText = 'نأمل منكم الالتزام بالحضور في الوقت المخصص حرصاً على سير العملية التعليمية وتفادياً للوصول للحد الذي يستوجب تطبيق الحسم النظامي.';
+        } else {
+            document.getElementById('printStatus').innerText = 'سجل منتظم';
+            document.getElementById('noticeText').innerText = 'تنبيه ودّي بحصر ساعات التأخر المسجلة حتى تاريخه.';
         }
 
         window.print();
@@ -850,7 +987,17 @@
     }
 
     function installApp() {
-        alert("لتثبيت هذا التطبيق على الشاشة الرئيسية للجوال:\n\n1️⃣ اضغطي على خيارات المتصفح (⋮) أو زر المشاركة (Share).\n2️⃣ اختاري 'الإضافة إلى الشاشة الرئيسية' (Add to Home Screen).");
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                    console.log('User accepted the install prompt');
+                }
+                deferredPrompt = null;
+            });
+        } else {
+            alert("لتثبيت هذا التطبيق مباشرة على شاشة الجوال الرئيسية:\n\n📱 للأيفون (Safari):\n1️⃣ اضغطي على زر المشاركة (Share ⬆️).\n2️⃣ اختاري 'الإضافة إلى الشاشة الرئيسية' (Add to Home Screen).\n\n🤖 للأندرويد (Chrome):\n1️⃣ اضغطي على خيارات المتصفح (⋮).\n2️⃣ اختاري 'تثبيت التطبيق' أو 'الإضافة إلى الشاشة الرئيسية'.");
+        }
     }
 
     function exportData() {
@@ -892,4 +1039,3 @@
 
 </body>
 </html>
-
