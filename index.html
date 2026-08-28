@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>نظام متابعة تأخر المعلمات - مدرسة فاطمة بنت اليمان</title>
     <style>
-        /* تعريف متغيرات الألوان للثيمات */
         :root {
             --primary-color: #2c3e50;
             --primary-hover: #1a252f;
@@ -16,7 +15,6 @@
             --accent-hover: #219150;
         }
 
-        /* الثيم الزمردي */
         [data-theme="emerald"] {
             --primary-color: #1b4d3e;
             --primary-hover: #113228;
@@ -27,7 +25,6 @@
             --accent-hover: #1b5e20;
         }
 
-        /* الثيم البنفسجي */
         [data-theme="purple"] {
             --primary-color: #4a154b;
             --primary-hover: #310e32;
@@ -38,7 +35,6 @@
             --accent-hover: #6a1b9a;
         }
 
-        /* الثيم العنابي */
         [data-theme="burgundy"] {
             --primary-color: #5c061c;
             --primary-hover: #3b0311;
@@ -50,27 +46,26 @@
         }
 
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: background-color 0.3s, border-color 0.3s; }
-        body { background-color: var(--bg-color); margin: 20px; color: #333; }
-        .container { max-width: 850px; margin: 0 auto; background: var(--card-bg); padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
+        body { background-color: var(--bg-color); margin: 10px; color: #333; }
+        .container { max-width: 850px; margin: 0 auto; background: var(--card-bg); padding: 15px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
         
-        .header-title { text-align: center; color: var(--primary-color); margin-bottom: 5px; font-size: 24px; }
-        .school-subtitle { text-align: center; color: var(--primary-color); font-size: 18px; font-weight: bold; margin-bottom: 2px; }
-        .credits-subtitle { text-align: center; color: #7f8c8d; font-size: 14px; font-weight: bold; margin-bottom: 20px; }
+        .header-title { text-align: center; color: var(--primary-color); margin-bottom: 5px; font-size: 22px; }
+        .school-subtitle { text-align: center; color: var(--primary-color); font-size: 16px; font-weight: bold; margin-bottom: 2px; }
+        .credits-subtitle { text-align: center; color: #7f8c8d; font-size: 13px; font-weight: bold; margin-bottom: 15px; }
         
-        /* شريط اختيار الثيمات */
         .theme-selector {
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
             background: var(--panel-bg);
-            padding: 10px;
+            padding: 8px;
             border-radius: 8px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
         .theme-dot {
-            width: 25px;
-            height: 25px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
             cursor: pointer;
             border: 2px solid #fff;
@@ -84,30 +79,29 @@
         .settings-panel, .form-panel, .action-bar {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 12px;
             background: #fafafa;
-            padding: 20px;
+            padding: 15px;
             border-radius: 8px;
             border: 1px solid #e2e8f0;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .settings-panel { background: var(--panel-bg); }
-
         .input-group { display: flex; flex-direction: column; gap: 6px; width: 100%; }
         .time-input-wrapper { display: flex; gap: 8px; }
 
-        label { font-weight: bold; color: var(--primary-color); font-size: 14px; }
+        label { font-weight: bold; color: var(--primary-color); font-size: 13px; }
         
         input, select, button, textarea { 
-            padding: 10px 14px; 
+            padding: 10px 12px; 
             border: 1px solid #ccc; 
             border-radius: 6px; 
             font-size: 14px; 
             width: 100%;
         }
 
-        input:focus, textarea:focus {
+        input:focus, select:focus, textarea:focus {
             outline: none;
             border-color: var(--primary-color);
             box-shadow: 0 0 5px rgba(0,0,0,0.1);
@@ -140,10 +134,11 @@
         .btn-import:hover { background-color: #7d3c98; }
         .btn-clear { background-color: #e74c3c; }
         .btn-clear:hover { background-color: #c0392b; }
-        .btn-print { background-color: #d35400; padding: 6px 12px; font-size: 13px; width: auto; }
+        .btn-print { background-color: #d35400; padding: 6px 10px; font-size: 12px; width: 100%; }
         .btn-print:hover { background-color: #a04000; }
-        .delete-btn { background-color: #c0392b; padding: 6px 12px; font-size: 13px; width: auto; }
+        .delete-btn { background-color: #c0392b; padding: 6px 10px; font-size: 12px; width: 100%; }
 
+        /* نافذة الإدخال الجماعي */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -156,44 +151,114 @@
 
         .modal-content {
             background: white;
-            padding: 25px;
+            padding: 20px;
             border-radius: 10px;
             width: 90%;
             max-width: 500px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 12px;
         }
 
         .modal-buttons { display: flex; gap: 10px; }
         .btn-secondary { background-color: #7f8c8d; }
-        .btn-secondary:hover { background-color: #626567; }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { border: 1px solid #e0e0e0; padding: 12px; text-align: center; }
-        th { background-color: var(--primary-color); color: white; }
-        tr:nth-child(even) { background-color: #f9f9f9; }
-        .alert-row { background-color: #ffe6e6 !important; color: #c0392b; font-weight: bold; }
-        .warning-row { background-color: #fff3cd !important; color: #856404; font-weight: bold; }
-        .badge-alert { background-color: #e74c3c; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; }
-        .badge-warning { background-color: #f39c12; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; }
-        .badge-normal { background-color: #2ecc71; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; }
+        /* تصميم بطاقات عرض المعلمات للجوال */
+        .cards-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 10px;
+        }
 
+        .teacher-card {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.04);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            border-right: 5px solid #2ecc71;
+        }
+
+        .teacher-card.warning-card {
+            border-right-color: #f39c12;
+            background-color: #fffdf5;
+        }
+
+        .teacher-card.alert-card {
+            border-right-color: #e74c3c;
+            background-color: #fff5f5;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px dashed #ddd;
+            padding-bottom: 8px;
+        }
+
+        .card-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .card-body {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            font-size: 13px;
+        }
+
+        .card-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-item span.label {
+            color: #7f8c8d;
+            font-size: 11px;
+        }
+
+        .card-item span.val {
+            font-weight: bold;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 5px;
+        }
+
+        .badge {
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            color: white;
+        }
+        .badge-alert { background-color: #e74c3c; }
+        .badge-warning { background-color: #f39c12; }
+        .badge-normal { background-color: #2ecc71; }
+
+        /* طباعة الإشعار الرسمي */
         #printArea { display: none; }
         @media print {
             body * { visibility: hidden; }
             #printArea, #printArea * { visibility: visible; }
-            #printArea { display: block !important; position: absolute; left: 0; top: 0; width: 100%; padding: 30px; background: white; color: black; }
+            #printArea { display: block !important; position: absolute; left: 0; top: 0; width: 100%; padding: 25px; background: white; color: black; }
             .no-print { display: none !important; }
         }
-        .notice-card { border: 2px solid var(--primary-color); padding: 30px; border-radius: 10px; line-height: 1.8; font-size: 15px; }
+        .notice-card { border: 2px solid var(--primary-color); padding: 25px; border-radius: 10px; line-height: 1.8; font-size: 15px; }
         .notice-header { text-align: center; border-bottom: 2px solid var(--primary-color); padding-bottom: 15px; margin-bottom: 20px; }
-        .notice-title { font-size: 20px; font-weight: bold; color: var(--primary-color); }
-        .notice-body { margin-bottom: 20px; }
+        .notice-title { font-size: 18px; font-weight: bold; color: var(--primary-color); }
         .notice-table { width: 100%; margin: 15px 0; border-collapse: collapse; }
         .notice-table th, .notice-table td { border: 1px solid #333; padding: 8px; text-align: center; }
-        .notice-footer { margin-top: 40px; display: flex; justify-content: space-between; padding: 0 30px; }
+        .notice-footer { margin-top: 35px; display: flex; justify-content: space-between; padding: 0 20px; }
         .signature-box { text-align: center; font-weight: bold; }
     </style>
 </head>
@@ -206,7 +271,7 @@
 
     <!-- شريط الثيمات -->
     <div class="theme-selector">
-        <span style="font-weight: bold; font-size: 13px;">اختر ثيم النظام:</span>
+        <span style="font-weight: bold; font-size: 12px;">الثيم:</span>
         <div class="theme-dot theme-classic" onclick="setTheme('default')" title="كلاسيكي"></div>
         <div class="theme-dot theme-emerald" onclick="setTheme('emerald')" title="زمردي"></div>
         <div class="theme-dot theme-purple" onclick="setTheme('purple')" title="بنفسجي"></div>
@@ -229,11 +294,13 @@
         </div>
     </div>
 
-    <!-- نموذج التسجيل -->
+    <!-- نموذج الإدخال متوافق مع قائمة الصناديق للجوال -->
     <div class="form-panel">
         <div class="input-group">
-            <label for="teacherName">اسم المعلمة:</label>
-            <input type="text" id="teacherName" placeholder="أدخل اسم المعلمة" required>
+            <label for="teacherNameInput">اسم المعلمة:</label>
+            <!-- استخدام input مدعوم بـ datalist للاختيار المباشر أو الكتابة -->
+            <input type="text" id="teacherNameInput" list="teachersList" placeholder="اختر من القائمة أو اكتب اسماً جديداً" required>
+            <datalist id="teachersList"></datalist>
         </div>
         <div class="input-group">
             <label for="arrivalTime">وقت الحضور:</label>
@@ -255,7 +322,7 @@
         <button class="btn-bulk" onclick="openBulkModal()">👥 إضافة معلمات دفعة واحدة</button>
     </div>
 
-    <!-- أدوات الملفات -->
+    <!-- الإجراءات والملفات -->
     <div class="action-bar">
         <button class="btn-export" onclick="exportData()">💾 تصدير نسخة احتياطية</button>
         <button class="btn-import" onclick="document.getElementById('importFile').click()">📂 استرداد بيانات من ملف</button>
@@ -263,28 +330,16 @@
         <button class="btn-clear" onclick="clearAllData()">🗑️ مسح الكل</button>
     </div>
 
-    <!-- الجدول الرئيسي -->
-    <table>
-        <thead>
-            <tr>
-                <th>اسم المعلمة</th>
-                <th>آخر وقت حضور</th>
-                <th>تأخير اليوم (دقائق)</th>
-                <th>مجموع التأخير التراكمي</th>
-                <th>الحالة والتنبيه</th>
-                <th>إجراءات والطباعة</th>
-            </tr>
-        </thead>
-        <tbody id="attendanceTable"></tbody>
-    </table>
+    <!-- عرض السجلات في شكل بطاقات مرتبة للجوال -->
+    <div class="cards-container" id="attendanceCards"></div>
 </div>
 
-<!-- النافذة المنبثقة للإدخال الجماعي -->
+<!-- نافذة الإدخال الجماعي -->
 <div class="modal-overlay" id="bulkModal">
     <div class="modal-content">
-        <h3 style="margin: 0; color: var(--primary-color);">👥 إضافة أسماء المعلمات دفعة واحدة</h3>
-        <p style="font-size: 13px; color: #666; margin: 0;">قم بكتابة أو لصق أسماء المعلمات، مع وضع كل اسم في سطر جديد:</p>
-        <textarea id="bulkNames" rows="8" placeholder="نورة أحمد&#10;سارة محمد&#10;ريم علي"></textarea>
+        <h3 style="margin: 0; color: var(--primary-color); font-size: 16px;">👥 إضافة أسماء المعلمات دفعة واحدة</h3>
+        <p style="font-size: 12px; color: #666; margin: 0;">اكتب أسماء المعلمات (كل اسم في سطر جديد):</p>
+        <textarea id="bulkNames" rows="7" placeholder="نورة أحمد&#10;سارة محمد&#10;ريم علي"></textarea>
         <div class="modal-buttons">
             <button onclick="addBulkTeachers()">حفظ القائمة</button>
             <button class="btn-secondary" onclick="closeBulkModal()">إلغاء</button>
@@ -292,21 +347,21 @@
     </div>
 </div>
 
-<!-- ورقة الإشعار الرسمية للطباعة -->
+<!-- الطباعة والإشعار -->
 <div id="printArea">
     <div class="notice-card">
         <div class="notice-header">
-            <div style="font-size: 15px; font-weight: bold; float: right;">
+            <div style="font-size: 14px; font-weight: bold; float: right;">
                 <span id="printSchool">مدرسة فاطمة بنت اليمان</span><br>
-                <span style="font-size: 12px; color: #555;">إعداد: منى عامر الرحيلي</span>
+                <span style="font-size: 11px; color: #555;">إعداد: منى عامر الرحيلي</span>
             </div>
-            <div style="font-size: 14px; font-weight: bold; float: left;" id="printDate">التاريخ: </div>
+            <div style="font-size: 13px; font-weight: bold; float: left;" id="printDate">التاريخ: </div>
             <div style="clear: both;"></div>
             <div class="notice-title" style="margin-top: 15px;">إشعار وتنبيه بمجموع تأخر المعلمة</div>
         </div>
 
         <div class="notice-body">
-            <p>المكرمة المعلمة: <strong id="printTeacherName" style="font-size: 18px; text-decoration: underline;"></strong> المحترمة</p>
+            <p>المكرمة المعلمة: <strong id="printTeacherName" style="font-size: 17px; text-decoration: underline;"></strong> المحترمة</p>
             <p>السلام عليكم ورحمة الله وبركاته،،،</p>
             <p>نحيطكم علماً بأنه لوحظ تكرار تأخركم عن وقت الحضور الرسمي للمدرسة، حيث بلغ مجموع تأخيراتكم التراكمية حتى هذا اليوم كالتالي:</p>
 
@@ -322,14 +377,14 @@
                 <tbody>
                     <tr>
                         <td id="printTotalMins" style="font-weight: bold;">0 دقيقة</td>
-                        <td id="printTotalHours" style="font-size: 18px; font-weight: bold; color: #c0392b;">0 ساعة</td>
+                        <td id="printTotalHours" style="font-size: 16px; font-weight: bold; color: #c0392b;">0 ساعة</td>
                         <td id="printLimit">7 ساعات</td>
                         <td id="printStatus">تنبيه بالاقتراب من حد الحسم</td>
                     </tr>
                 </tbody>
             </table>
 
-            <p style="margin-top: 20px; font-weight: bold;">تفاصيل أيام وأوقات التأخير المسجلة:</p>
+            <p style="margin-top: 15px; font-weight: bold;">تفاصيل أيام وأوقات التأخير المسجلة:</p>
             <table class="notice-table">
                 <thead>
                     <tr>
@@ -364,7 +419,8 @@
         loadTheme();
         loadSettings();
         loadDataFromStorage();
-        renderAllRows();
+        renderAllCards();
+        updateTeachersDatalist();
     };
 
     function setTheme(themeName) {
@@ -397,7 +453,7 @@
         };
         document.getElementById('displaySchoolName').innerText = schoolVal;
         localStorage.setItem('attendanceSettings', JSON.stringify(settings));
-        renderAllRows();
+        renderAllCards();
     }
 
     function loadSettings() {
@@ -412,13 +468,23 @@
         }
     }
 
+    function updateTeachersDatalist() {
+        const datalist = document.getElementById('teachersList');
+        datalist.innerHTML = '';
+        for (let name in teachersData) {
+            const option = document.createElement('option');
+            option.value = name;
+            datalist.appendChild(option);
+        }
+    }
+
     function addRecord() {
-        const name = document.getElementById('teacherName').value.trim();
+        const name = document.getElementById('teacherNameInput').value.trim();
         const arrivalTimeStr = document.getElementById('arrivalTime').value;
         const officialTimeStr = document.getElementById('officialTime').value;
 
         if (!name || !arrivalTimeStr) {
-            alert('يرجى كتابة اسم المعلمة وتحديد وقت الحضور.');
+            alert('يرجى اختيار/كتابة اسم المعلمة وتحديد وقت الحضور.');
             return;
         }
 
@@ -443,9 +509,10 @@
         }
 
         saveDataToStorage();
-        renderAllRows();
+        renderAllCards();
+        updateTeachersDatalist();
 
-        document.getElementById('teacherName').value = '';
+        document.getElementById('teacherNameInput').value = '';
         document.getElementById('arrivalTime').value = '';
     }
 
@@ -470,7 +537,8 @@
         });
 
         saveDataToStorage();
-        renderAllRows();
+        renderAllCards();
+        updateTeachersDatalist();
         closeBulkModal();
         alert(`تمت إضافة ${addedCount} معلمة بنجاح!`);
     }
@@ -489,9 +557,10 @@
         if (saved) { teachersData = JSON.parse(saved); }
     }
 
-    function renderAllRows() {
-        const tbody = document.getElementById('attendanceTable');
-        tbody.innerHTML = '';
+    /* عرض البيانات في شكل بطاقات جذابة تناسب الجوال */
+    function renderAllCards() {
+        const container = document.getElementById('attendanceCards');
+        container.innerHTML = '';
 
         const deductionHours = parseFloat(document.getElementById('deductionLimit').value) || 7;
         const limitMinutes = deductionHours * 60;
@@ -499,33 +568,46 @@
 
         for (let name in teachersData) {
             const data = teachersData[name];
-            let rowClass = '';
+            let cardClass = 'teacher-card';
             let statusBadge = '';
 
             if (data.totalDelay >= limitMinutes) {
-                rowClass = 'alert-row';
-                statusBadge = `<span class="badge-alert">تجاوزت حد الحسم (${(data.totalDelay/60).toFixed(1)} ساعة)</span>`;
+                cardClass += ' alert-card';
+                statusBadge = `<span class="badge badge-alert">تجاوزت الحسم</span>`;
             } else if (data.totalDelay >= warningMinutes) {
-                rowClass = 'warning-row';
-                statusBadge = `<span class="badge-warning">⚠️ قريبة من الحسم (${(data.totalDelay/60).toFixed(1)} ساعة)</span>`;
+                cardClass += ' warning-card';
+                statusBadge = `<span class="badge badge-warning">قريبة من الحسم</span>`;
             } else {
-                statusBadge = `<span class="badge-normal">منتظم</span>`;
+                statusBadge = `<span class="badge badge-normal">منتظمة</span>`;
             }
 
-            const tr = document.createElement('tr');
-            tr.className = rowClass;
-            tr.innerHTML = `
-                <td>${name}</td>
-                <td>${data.lastArrival}</td>
-                <td>${data.lastTodayDelay} دقيقة</td>
-                <td>${data.totalDelay} دقيقة (${(data.totalDelay/60).toFixed(1)} ساعة)</td>
-                <td>${statusBadge}</td>
-                <td>
+            const card = document.createElement('div');
+            card.className = cardClass;
+            card.innerHTML = `
+                <div class="card-header">
+                    <span class="card-name">👤 ${name}</span>
+                    ${statusBadge}
+                </div>
+                <div class="card-body">
+                    <div class="card-item">
+                        <span class="label">آخر وقت حضور:</span>
+                        <span class="val">${data.lastArrival}</span>
+                    </div>
+                    <div class="card-item">
+                        <span class="label">تأخير اليوم:</span>
+                        <span class="val">${data.lastTodayDelay} دقيقة</span>
+                    </div>
+                    <div class="card-item" style="grid-column: span 2;">
+                        <span class="label">إجمالي التأخير التراكمي:</span>
+                        <span class="val" style="color: var(--primary-color);">${data.totalDelay} دقيقة (${(data.totalDelay/60).toFixed(1)} ساعة)</span>
+                    </div>
+                </div>
+                <div class="card-actions">
                     <button class="btn-print" onclick="printTeacherNotice('${name}')">🖨️ طباعة إشعار</button>
                     <button class="delete-btn" onclick="deleteTeacher('${name}')">حذف</button>
-                </td>
+                </div>
             `;
-            tbody.appendChild(tr);
+            container.appendChild(card);
         }
     }
 
@@ -574,7 +656,8 @@
         if (confirm(`هل أنت تأكد من حذف سجل المعلمة (${name})؟`)) {
             delete teachersData[name];
             saveDataToStorage();
-            renderAllRows();
+            renderAllCards();
+            updateTeachersDatalist();
         }
     }
 
@@ -596,7 +679,8 @@
                 if (confirm('هل ترغب في استبدال البيانات؟')) {
                     teachersData = importedData;
                     saveDataToStorage();
-                    renderAllRows();
+                    renderAllCards();
+                    updateTeachersDatalist();
                     alert('تم استرداد البيانات بنجاح!');
                 }
             } catch (err) { alert('خطأ في الملف.'); }
@@ -608,7 +692,8 @@
         if (confirm('⚠️ مسح جميع السجلات؟')) {
             teachersData = {};
             localStorage.removeItem('teachersAttendanceData');
-            renderAllRows();
+            renderAllCards();
+            updateTeachersDatalist();
         }
     }
 </script>
